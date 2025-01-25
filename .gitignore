@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+dist/
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+.npmrc
+yarn-error.log
+pnpm-lock.yaml
+package-lock.json
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Prisma
+prisma/dev.db
+prisma/migrations/
+prisma/.env
+
+
