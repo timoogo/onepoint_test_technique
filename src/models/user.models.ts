@@ -1,19 +1,6 @@
-type Schema = {
-    type: string;
-    required: string[];
-    properties: {
-      [key: string]: {
-        type: string;
-        format?: string;
-        minLength?: number;
-        enum?: string[];
-        default?: string;
-        description?: string;
-      };
-    };
-  };
-  
-  export const userSchema: Schema = {
+import { Schema } from "../utils/schema.type";
+
+  export const userModel: Schema = {
     type: 'object',
     required: ['email', 'name', 'password'],
     properties: {

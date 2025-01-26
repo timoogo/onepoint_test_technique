@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { userSchema } from '../schemas/user.schema';
+import { userModel } from '../models/user.models';
 import { registerUser } from '../controllers/user.controller';
 
 export async function userPostRoutes(fastify: FastifyInstance) {
@@ -7,7 +7,7 @@ export async function userPostRoutes(fastify: FastifyInstance) {
     schema: {
       summary: 'Créer un nouvel utilisateur',
       tags: ['Users'],
-      body: userSchema,
+      body: userModel,
       response: {
         201: {
           description: 'Utilisateur créé avec succès',
