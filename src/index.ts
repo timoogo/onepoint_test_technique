@@ -2,6 +2,7 @@ import fastify from 'fastify';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import { authRoutes } from './routes/auth.routes';
+import { UserRoutes } from './routes/user.routes';
 import dotenv from 'dotenv';
 import jwt from '@fastify/jwt';
 
@@ -38,8 +39,8 @@ app.register(swagger, {
 app.register(swaggerUi, {
   routePrefix: '/docs',
   uiConfig: {
-    docExpansion: 'none',
-    deepLinking: false,
+    docExpansion: 'full',
+    deepLinking: true,
   },
   staticCSP: true,
   transformSpecification: (swaggerObject, req, reply) => {
@@ -50,6 +51,12 @@ app.register(swaggerUi, {
 
 // Routes d'authentification
 app.register(authRoutes);
+
+app.register(UserRoutes)
+// console log le nombre de routes enregistrées 
+app.ready(() => {
+  console.log(app.printRoutes());
+});
 
 // Route pour vérifier si l'API fonctionne
 app.get('/', async () => {
