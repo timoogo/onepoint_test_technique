@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { loginModel, loginResponseModel } from '../models/auth.models';
 import dotenv from 'dotenv';
+
 export async function authRoutes(app: FastifyInstance) {
     dotenv.config();
   app.post('/login', {
@@ -35,5 +36,7 @@ export async function authRoutes(app: FastifyInstance) {
 
 
     return reply.send({ token });
-  });
+  },
+
+);
 }

@@ -8,9 +8,9 @@ export async function userPostRoutes(fastify: FastifyInstance) {
   const userController = new UserController();
 
   // Typage explicite pour `request.body`
-  fastify.post('/users',   {
+  fastify.post('/',   {
     schema: {
-      tags: ['User'], // Cette ligne associe la route à la section "User"
+      tags: ['Users'], // Cette ligne associe la route à la section "User"
       description: 'Créer un utilisateur',
       body: {
         type: 'object',

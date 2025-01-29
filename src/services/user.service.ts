@@ -1,5 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { UserWithPassword as SafeUser } from '../types/user.type';
 
 const prisma = new PrismaClient();
 
@@ -39,15 +40,37 @@ export class UserService {
 
 
 
-  async getAllUsers() {
-    return await prisma.user.findMany();
-  }
-
-  async getUserById(id: number) {
-    return await prisma.user.findUnique({
-      where: {
-        id,
-      },
+  async getAllUsers(): Promise<SafeUser[]> {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      }, 
     });
+  
+    return users;
   }
+  
+
+  async getUserById(id: number): Promise<SafeUser | null> {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      }, 
+    });
+  
+    return user; 
+  }
+  
+  
 }
