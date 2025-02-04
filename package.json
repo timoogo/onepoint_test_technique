@@ -18,6 +18,7 @@
     "fastify": "^5.2.1",
     "fastify-jwt": "^4.2.0",
     "fastify-swagger": "^5.2.0",
+    "ioredis": "^5.4.2",
     "prisma": "^6.2.1"
   },
   "devDependencies": {

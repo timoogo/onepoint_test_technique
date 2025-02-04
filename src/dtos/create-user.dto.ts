@@ -4,11 +4,11 @@ import { Transform } from 'class-transformer';
 export class CreateUserDto {
 
   // id
-  @IsOptional()
+
   @IsNotEmpty({ message: 'L\'id est obligatoire.' })
   @IsNumber({}, { message: 'L\'id doit être un nombre.' })
   @IsPositive({ message: 'L\'id doit être un nombre positif.' })
-  id?: number;
+  id!: number;
 
   
   @IsNotEmpty({ message: 'Le nom est obligatoire.' })
@@ -31,7 +31,7 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsString({ message: 'Le rôle doit être une chaîne de caractères.' })
-  @Transform(({ value }) => value?.toLowerCase())
+  @Transform(({ value }) => (value ? value.toLowerCase() : "user"))
   @Matches(/^(admin|user)$/, {
     message: 'Le rôle doit être "admin", "user".',
   })

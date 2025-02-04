@@ -26,4 +26,9 @@ export class UserController {
 
     return await this.userService.getUserById(id);
   }
+
+  async deleteUserById(id: number) {
+    console.log("Controller@deleteUserById", id);
+    return await this.userService.deleteUserById(id);
+  }
 }

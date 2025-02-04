@@ -14,6 +14,15 @@ export class UserService {
    * @returns L'utilisateur créé
    */
   async createUser(email: string, name: string, password: string, role: string = 'user') {
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new Error('Cet email est déjà utilisé');
+    }
+
     // Hachage du mot de passe
     const hashedPassword = await this.hashPassword(password);
     return await prisma.user.create({
@@ -21,7 +30,7 @@ export class UserService {
           email,
           name,
           password: hashedPassword,
-          role,
+          role: role || this.getDefaultRole(),
         },
       });
   
@@ -71,6 +80,22 @@ export class UserService {
   
     return user; 
   }
+
+  private getDefaultRole(): string {
+    return 'user';
+  }
   
+  async deleteUserById(id: number): Promise<User | null> {
+    console.log("Service@deleteUserById", id);
+    await prisma.user.update({
+      where: { id },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
+    return await prisma.user.delete({
+      where: { id },
+    });
+  }
   
 }

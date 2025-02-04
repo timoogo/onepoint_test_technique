@@ -9,3 +9,12 @@ export type UserWithPassword = {
     createdAt: Date;
     updatedAt: Date;
 }
+export type AuthenticatedUser = {
+    id: number;
+    email: string;
+    name: string;
+    role: string;
+    createdAt: Date;
+    updatedAt: Date;
+    exp?: number; // ✅ Expiration du token ajoutée
+};

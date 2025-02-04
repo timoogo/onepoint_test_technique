@@ -7,9 +7,11 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
 
     // Route GET /articles
     fastify.get('/', {
+        preHandler: [], // Pas de prétraitement / middleware
         schema: {
             tags: ['Articles'], // Correction : "Articles" au pluriel pour une meilleure organisation Swagger
             description: 'Récupérer la liste des articles',
+            security: [], // Pas de sécurité pour cette route
             response: {
                 200: {
                     type: 'array',
@@ -27,14 +29,16 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
                     },
                 },
             },
+            
         },
     }, async (request, reply) => {
         try {
+            console.log("GET * /articles");
+            console.table(request.user);
             const articles = await articleController.getAllArticles();
-            ResponseHandler.success(reply, articles, 'Liste des articles récupérée avec succès.');
+            ResponseHandler.success("Liste des articles récupérée avec succès.", articles, request);
         } catch (error) {
-            ResponseHandler.error(reply, error);
-        }
+            ResponseHandler.error("Erreur lors de la récupération des articles", error, request);}
     });
 
     // Route GET /articles/:id
@@ -83,9 +87,9 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
                 });
             }
 
-            ResponseHandler.success(reply, article, `Article avec l'ID ${id} récupéré avec succès.`);
+            ResponseHandler.success("Article récupéré avec succès.", article, request);
         } catch (error) {
-            ResponseHandler.error(reply, error);
+            ResponseHandler.error("Erreur lors de la récupération de l'article", error, request);
         }
     });
 }
