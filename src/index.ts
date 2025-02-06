@@ -10,6 +10,9 @@ import { AuthService } from "./services/auth.service";
 import { ResponseHandler } from "./utils/response.handler";
 import { EnvironnementLevel } from "./config/environnement.config";
 import { ArticleRoutes } from "./routes/article.routes";
+import { HttpMessages, HttpStatus } from "./config/http.config";
+import { RedisService } from "./services/redis.service";
+import { RedisDebugService } from "./services/redis.debug.service";
 
 dotenv.config();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -21,11 +24,12 @@ const app = fastify({
     // process.env.NODE_ENV === EnvironnementLevel.DEVELOPMENT || false,
 });
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST,
-  port: Number(process.env.REDIS_PORT || "6379"),
-  password: process.env.REDIS_PASSWORD,
-});
+const redisService = process.env.ENVIRONNEMENT_LEVEL === EnvironnementLevel.DEVELOPMENT
+  ? new RedisDebugService() // ✅ En dev, on utilise la version avec debug
+  : new RedisService(); // ✅ En prod, la version sécurisée sans debug
+
+export { redisService };
+
 // Enregistrement du plugin JWT
 app.register(jwt, {
 	sign: { expiresIn: JWT_EXPIRES_IN },
@@ -43,7 +47,7 @@ type RouteOptions = {
 const publicRoutes: RouteOptions[] = [
 	{ url: "/docs", displayInConsole: false },
 	{ url: "/auth/login", method: "POST" },
-	{ url: "/auth/register", method: "POST" },
+	{ url: "/users/register", method: "POST" },
 	{ url: "/auth/logout", method: "POST" }, // Pour éviter la vérification du token
 	{ url: "/auth/amILoggedIn", method: "GET" },
   { url: "/articles", method: "GET" },
@@ -51,90 +55,84 @@ const publicRoutes: RouteOptions[] = [
 ];
 
 app.addHook("onRequest", async (request, reply) => {
-	const isPublicRoute = publicRoutes.some((route) => {
-		if (!request.raw.url?.startsWith(route.url)) return false;
-
-		if (
-			route.method &&
-			request.method.toUpperCase() !== route.method.toUpperCase()
-		)
-			return false;
-
-		return true;
-	});
+	const isPublicRoute = publicRoutes.some(
+	  (route) =>
+		request.raw.url?.startsWith(route.url) &&
+		(!route.method || request.method.toUpperCase() === route.method.toUpperCase())
+	);
+  
 	if (isPublicRoute) {
-		if (
-			publicRoutes.find(
-				(route) => request.method.toUpperCase() !== route.method?.toUpperCase(),
-			)
-		) {
-			return false;
-		}
-		return;
+	  return;
 	}
-	// Si ce n'est pas une route publique, on passe à la vérification du token
+  
+	// Vérification de l'existence du token
 	if (!request.headers.authorization) {
-		request.log.warn(`Token manquant pour la route ${request.url}`);
-		return reply.status(401).send({
-			status: "error",
-			message: "Token manquant",
-		});
+	  request.log.warn(`${HttpMessages.TOKEN_MISSING} pour ${request.url}`);
+	  return reply.status(HttpStatus.UNAUTHORIZED).send({
+		status: "error",
+		errorCode: HttpStatus.UNAUTHORIZED,
+		message: HttpMessages.TOKEN_MISSING,
+	  });
 	}
+  
+	// Vérification du token JWT
 	try {
-		await request.jwtVerify();
-		request.log.info(`Token vérifié pour la route ${request.url}`);
+	  await request.jwtVerify();
+	  request.log.info(`Token vérifié pour la route ${request.url}`);
 	} catch (error: any) {
-		request.log.error(
-			`Token invalide ou expiré pour ${request.raw.url}`,
-			error,
-		);
-		return reply
-			.status(401)
-			.send({ status: "error", message: "Token invalide ou expiré" });
+	  request.log.error(`${HttpMessages.TOKEN_INVALID} pour ${request.raw.url}`, error);
+	  return reply.status(HttpStatus.UNAUTHORIZED).send({
+		status: "error",
+		errorCode: HttpStatus.UNAUTHORIZED,
+		message: HttpMessages.TOKEN_INVALID,
+	  });
 	}
-});
+  });
+  
+  
 
 // Gestion des erreurs globales
 app.setErrorHandler((error, request, reply) => {
 	ResponseHandler.error("❌ Une erreur s'est produite", error, request);
-
-	reply.status(error.statusCode || 500).send({
-		status: "error",
-		message: error.message || "Erreur interne du serveur",
+  
+	const statusCode = error.statusCode || HttpStatus.INTERNAL_SERVER_ERROR;
+	const message = error.message || HttpMessages.INTERNAL_SERVER_ERROR;
+  
+	reply.status(statusCode).send({
+	  status: "error",
+	  errorCode: statusCode,
+	  message,
 	});
-});
+  });
 
 // Hook pour formater et enrichir la réponse
 app.addHook("onSend", async (request, reply, payload) => {
-	// ✅ Vérifie si le payload est une string vide et corrige
-	if (typeof payload === "string" && payload.trim() === "") {
-		console.warn("⚠️ Réponse vide détectée, correction...");
+	try {
+	  // ✅ Vérifie si le payload est vide et corrige
+	  if (typeof payload === "string" && payload.trim() === "") {
+		request.log.warn("⚠️ Réponse vide détectée, correction...");
 		return JSON.stringify({
-			status: "error",
-			message: "Réponse vide inattendue",
+		  status: "error",
+		  message: "Réponse vide inattendue",
 		});
+	  }
+  
+	  // ✅ Si l'utilisateur est présent, enrichir la réponse
+	  if (request.user) {
+		const parsedPayload = typeof payload === "string" ? JSON.parse(payload) : payload;
+		return JSON.stringify({
+		  ...parsedPayload,
+		  user: request.user,
+		});
+	  }
+  
+	  return payload;
+	} catch (error) {
+	  request.log.error("⚠️ Erreur lors du traitement de la réponse", error);
+	  return payload;
 	}
-
-	// ✅ Ajoute l'utilisateur connecté dans la réponse sans écraser le payload
-	if (request.user) {
-		try {
-			const parsedPayload =
-				typeof payload === "string" ? JSON.parse(payload) : payload;
-			return JSON.stringify({
-				...parsedPayload,
-				user: request.user,
-			});
-		} catch (error: any) {
-			console.error(
-				"⚠️ Erreur lors de l'ajout de l'utilisateur à la réponse !",
-			);
-			return payload;
-		}
-	}
-
-	return payload;
-});
-
+  });
+  
 // Configuration de Swagger
 app.register(swagger, {
 	openapi: {
@@ -191,8 +189,8 @@ if (process.env.ENVIRONNEMENT_LEVEL === EnvironnementLevel.DEVELOPMENT)  {
 app.ready(async () => {
 	app.log.info("🚀 Fastify est maintenant prêt !");
 	app.log.info(app.printRoutes({ commonPrefix: false }));
-	const isAuthenticated = await AuthService.checkAuthenticatedUsers(app, redis);
-	app.log.info(
+	const isAuthenticated = await redisService.checkAuthenticatedUsers();
+		app.log.info(
 		`📄 Swagger disponible à l'adresse : http://localhost:${PORT}/docs`,
 	);
 	app.log.info(`[INFO] isAuthenticated : ${isAuthenticated}`);
@@ -203,11 +201,33 @@ app.ready(async () => {
 const start = async () => {
 	try {
 		await app.listen({ port: PORT, host: "0.0.0.0" });
-		app.log.info(`Serveur en écoute sur http://localhost:${PORT}/docs`);
+		app.log.info(`🚀 Serveur en écoute sur http://localhost:${PORT}/docs`);
+
+		if (redisService instanceof RedisDebugService) {
+			// 🔹 Récupérer les tokens stockés et blacklistés uniquement en DEV
+			const allTokens = await redisService.listAllTokens();
+			const blacklistedTokens = await redisService.listBlacklistedTokens();
+
+			console.log(`🔍 ${allTokens.length} tokens stockés en Redis.`);
+			console.table([{ "Tokens stockés": allTokens.length, "Tokens blacklistés": blacklistedTokens.length }]);
+
+			// 🔹 Suppression de tous les tokens blacklistés
+			if (blacklistedTokens.length > 0) {
+				for (const token of blacklistedTokens) {
+					await redisService.unrevokeToken(token);
+				}
+				console.log(`✅ ${blacklistedTokens.length} tokens retirés de la blacklist.`);
+			} else {
+				console.log(`ℹ️ Aucun token à retirer de la blacklist.`);
+			}
+		}
 	} catch (err) {
-		app.log.error("Erreur au démarrage du serveur :", err);
+		app.log.error("❌ Erreur au démarrage du serveur :", err);
+		console.error({err});
 		process.exit(1);
 	}
 };
+
+start();
 
 start();

@@ -1,14 +1,19 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { ResponseHandler } from "../utils/response.handler";
+import { HttpStatus, HttpMessages } from "../config/http.config";
+
 
 export const isAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
-  console.log("🔍 Utilisateur détecté :", request.user); // Ajout du log
+  request.log.info("🔍 Vérification du rôle utilisateur :", { user: request.user });
+
   if (!request.user || request.user.role !== "admin") {
-    ResponseHandler.error("Accès interdit : rôle admin requis", null, request);
-    
-    return reply.status(403).send({
+    ResponseHandler.error(HttpMessages.FORBIDDEN, null, request);
+
+    return reply.status(HttpStatus.FORBIDDEN).send({
       status: "error",
-      message: "Accès interdit : rôle admin requis",
+      errorCode: HttpStatus.FORBIDDEN,
+      message: HttpMessages.FORBIDDEN,
     });
   }
 };
+

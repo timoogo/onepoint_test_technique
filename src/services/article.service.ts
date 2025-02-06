@@ -3,31 +3,38 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class ArticleService {
-	static readonly TITLE_LENGTH = {
-		MIN: 5,
-		MAX: 100,
-	};
-	static readonly DESCRIPTION_LENGTH = {
-		MIN: 10,
-		MAX: 250,
-	};
-	static readonly CONTENT_LENGTH = {
-		MIN: 10,
-		MAX: 10000,
-	};
 
 	/**
 	 * Récupérer tous les articles
 	 */
 	async getAllArticles() {
-		return prisma.article.findMany({
-			include: {
-				createdBy: {
-					select: { id: true, name: true, email: true },
-				},
-			},
-		});
-	}
+        try {
+            const articles = await prisma.article.findMany({
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    content: true,
+                    createdAt: true,
+                    updatedAt: true,
+                    createdById: true,
+                    createdBy: {
+                        select: { id: true, name: true, email: true },
+                    },
+                },
+            });
+
+            // 🔹 S'assurer que `createdBy` est `null` au lieu d'`undefined`
+            return articles.map(article => ({
+                ...article,
+                createdBy: article.createdBy ?? null,
+            }));
+
+        } catch (error) {
+            console.error("❌ Erreur lors de la récupération des articles :", error);
+            throw new Error("Impossible de récupérer les articles.");
+        }
+    }
 
 	/**
 	 * Récupérer un article par son ID

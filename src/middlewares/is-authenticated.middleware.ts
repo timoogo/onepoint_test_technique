@@ -1,30 +1,44 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { redisService } from "..";
+import { HttpMessages, HttpStatus } from "../config/http.config";
 import { ResponseHandler } from "../utils/response.handler";
 
-export const isAuthenticated = async (request: FastifyRequest, reply: FastifyReply) => {
-  try {
-    console.log("🔑 Token reçu dans le header:", request.headers.authorization); // Ajout du log
+export const isAuthenticated = async (
+	request: FastifyRequest,
+	reply: FastifyReply,
+) => {
+	try {
+		request.log.info("🔑 Vérification du token dans le header", {
+			authorization: request.headers.authorization,
+		});
 
-    if (!request.headers.authorization) {
-      console.warn("⚠️ Aucune autorisation trouvée dans l'en-tête de la requête !");
-      return reply.status(401).send({
-        status: "error",
-        message: "Token manquant",
-      });
-    }
+		if (!request.headers.authorization) {
+			return reply.status(HttpStatus.UNAUTHORIZED).send({
+				status: "error",
+				errorCode: HttpStatus.UNAUTHORIZED,
+				message: HttpMessages.TOKEN_MISSING,
+			});
+		}
 
-    await request.jwtVerify();
-    const decoded = request.user; // 🔥 JWT décodé
-    ResponseHandler.info("✅ Utilisateur authentifié", decoded, request);
+		const token = request.headers.authorization.split(" ")[1];
 
-    console.log("✅ Utilisateur après vérification JWT:", request.user); // Vérifie ce qui est attaché
-  } catch (error) {
-    console.error("❌ Erreur JWT:", error);
-    console.log({ user: request.user });
+		if (await redisService.isTokenBlacklisted(token)) {
+			return reply.status(HttpStatus.UNAUTHORIZED).send({
+				status: "error",
+				errorCode: HttpStatus.UNAUTHORIZED,
+				message: HttpMessages.TOKEN_BLACKLISTED,
+			});
+		}
 
-    return reply.status(401).send({
-      status: "error",
-      message: "Token invalide ou expiré",
-    });
-  }
+		await request.jwtVerify();
+		ResponseHandler.info("✅ Utilisateur authentifié", request.user, request);
+		request.log.info("✅ JWT validé avec succès", { user: request.user });
+	} catch (error) {
+		request.log.error("❌ Erreur JWT", error);
+		return reply.status(HttpStatus.UNAUTHORIZED).send({
+			status: "error",
+			errorCode: HttpStatus.UNAUTHORIZED,
+			message: HttpMessages.TOKEN_INVALID,
+		});
+	}
 };

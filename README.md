@@ -49,3 +49,13 @@ Routes d’authentification (/auth)
   "password": "Ell3Est!Mysandre",
   "role": "admin"
 }
+
+
+## TODO
+- Faire :
+  - les tests unitaires
+  - les tests d'intégration
+  - la documentation
+
+
+

@@ -1,15 +1,15 @@
-import { User } from '@prisma/client';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty } from "class-validator";
+import { UserConfig } from "../config/user.config";
 
 export class LoginDto {
-  @IsEmail({}, { message: "L'adresse email est invalide." })
-  @IsNotEmpty({ message: "L'email est requis." })
+  @IsEmail({}, { message: UserConfig.EMAIL.INVALID_MESSAGE })
+  @IsNotEmpty({ message: UserConfig.EMAIL.REQUIRED_MESSAGE })
   email!: string;
 
-  @IsNotEmpty({ message: "Le mot de passe est requis." })
+  @IsNotEmpty({ message: UserConfig.PASSWORD.REQUIRED_MESSAGE })
   password!: string;
 
-    constructor(data: Partial<User>) {
-        Object.assign(this, data);
-    }
+  constructor(data: Partial<LoginDto>) {
+    Object.assign(this, data);
+  }
 }
