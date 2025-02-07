@@ -9,7 +9,4 @@ export class LoginDto {
   @IsNotEmpty({ message: UserConfig.PASSWORD.REQUIRED_MESSAGE })
   password!: string;
 
-  constructor(data: Partial<LoginDto>) {
-    Object.assign(this, data);
-  }
 }

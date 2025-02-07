@@ -1,5 +1,5 @@
-import { User } from '@prisma/client';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
+import { UserConfig, UserRoles } from '../config/user.config';
 
 export class RegisterDto {
   @IsEmail({}, { message: "L'adresse email est invalide." })
@@ -13,4 +13,10 @@ export class RegisterDto {
   @IsNotEmpty({ message: "Le mot de passe est requis." })
   @MinLength(6, { message: "Le mot de passe doit contenir au moins 6 caractères." })
   password!: string;
+
+
+  @IsOptional()
+  @IsEnum(UserRoles, { message: `Le rôle doit être l'une des valeurs suivantes : ${UserConfig.UserRolesArray.join(', ')}.` })
+  role: UserRoles = UserRoles.USER;
+
 }

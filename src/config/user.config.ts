@@ -3,6 +3,9 @@ export enum UserRoles {
   USER = "user",
 }
 
+// Itérable UserRoles
+
+
 export const DocExample = [
   {
     name: "John Doe",

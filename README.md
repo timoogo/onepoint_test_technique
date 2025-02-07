@@ -44,13 +44,10 @@ Routes d’authentification (/auth)
 
 ---
 {
-  "name": "valentine",
-  "email": "valentinedegaulle@gmail.com",
-  "password": "Ell3Est!Mysandre",
-  "role": "admin"
-}
-
-
+  "name": "User",
+  "email": "t@t.com", "password": "UneStringComplicat3d!",
+  "role": "user"
+} 
 ## TODO
 - Faire :
   - les tests unitaires

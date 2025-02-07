@@ -3,6 +3,7 @@ import { FastifyInstance } from "fastify";
 import { AuthController } from "../controllers/auth.controller";
 import { LoginDto } from "../dtos/login.dto";
 import { loginModel, loginResponseModel } from "../models/auth.models";
+import { LoginRouteDefinition } from "../config/auth.routes.config";
 
 dotenv.config();
 
@@ -11,26 +12,7 @@ export async function AuthPostRoutes(app: FastifyInstance) {
 	// Route de connexion
 	app.post<{ Body: LoginDto }>(
 		"/login",
-		{
-			schema: {
-				description: "Authentification et génération d'un token JWT",
-				tags: ["Auth"],
-				body: loginModel,
-				response: {
-					200: loginResponseModel,
-					401: {
-						type: "object",
-						properties: {
-							message: {
-								type: "string",
-								description:
-									"Message d'erreur en cas d'identifiants incorrects",
-							},
-						},
-					},
-				},
-			},
-		},
+		LoginRouteDefinition,
 		(req, reply) => authController.login(req, reply), // Ici, on passe `app`
 	);
 	// Route de déconnexion

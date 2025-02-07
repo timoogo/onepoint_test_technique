@@ -1,3 +1,4 @@
+import { UserRoles } from "../config/user.config";
 import { Schema } from "../types/schema.type";
 
 export const loginModel: Schema = {
@@ -85,3 +86,59 @@ export const loginResponseModel: Schema = {
       },
     },  
   }
+
+  export const registerResponseModel: Schema = {
+    type: "object",
+    properties: {
+      status: {
+        type: "string",
+        description: "Statut de la requête",
+        example: "success",
+      },
+      message: {
+        type: "string",
+        description: "Message de confirmation d'inscription",
+        example: "Utilisateur créé avec succès.",
+      },
+      user: {
+        type: "object",
+        properties: {
+          id: {
+            type: "number",
+            description: "Identifiant unique de l'utilisateur",
+            example: 1,
+          },
+          name: {
+            type: "string",
+            description: "Nom de l'utilisateur",
+            example: "John Doe",
+          },
+          email: {
+            type: "string",
+            format: "email",
+            description: "Adresse email de l'utilisateur",
+            example: "johndoe@example.com",
+          },
+          role: {
+            type: "string",
+            enum: Object.values(UserRoles),
+            description: "Rôle attribué à l'utilisateur",
+            example: "user",
+          },
+          createdAt: {
+            type: "string",
+            format: "date-time",
+            description: "Date de création de l'utilisateur",
+            example: "2024-02-06T10:00:00Z",
+          },
+          updatedAt: {
+            type: "string",
+            format: "date-time",
+            description: "Date de dernière mise à jour de l'utilisateur",
+            example: "2024-02-06T12:30:00Z",
+          },
+        },
+      },
+    },
+  };
+  

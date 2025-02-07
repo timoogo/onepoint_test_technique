@@ -6,6 +6,8 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ResponseHandler } from '../utils/response.handler';
 import { HttpStatus, HttpMessages } from '../config/http.config';
+import { BaseException } from '../exeptions/base.exception';
+import { validateDto } from '../middlewares/validate-dto.middleware';
 
 export class AuthController {
   private authService: AuthService;
@@ -16,43 +18,42 @@ export class AuthController {
 
   async login(request: FastifyRequest<{ Body: LoginDto }>, reply: FastifyReply) {
     try {
-      ResponseHandler.info("🔹 Requête reçue pour login", { email: request.body.email }, request);
-  
-      // Transformation et validation du DTO
-      const loginDto = plainToInstance(LoginDto, request.body);
-      const errors = await validate(loginDto);
-      if (errors.length > 0) {
-        ResponseHandler.error("❌ Erreur de validation", errors, request);
-        return reply.status(HttpStatus.BAD_REQUEST).send({
-          status: "error",
-          errorCode: HttpStatus.BAD_REQUEST,
-          message: HttpMessages.BAD_REQUEST,
-          errors,
+        ResponseHandler.info("🔹 Requête reçue pour login", { email: request.body.email }, request);
+
+        // Validation avec `validateDto`
+        const loginDto = await validateDto(LoginDto, request.body);
+
+        // Authentification via le service
+        const { token, user } = await this.authService.login(loginDto, request.server);
+
+        ResponseHandler.success("✅ Connexion réussie", user, request);
+        request.log.info("🔑 Token envoyé au client (@controller)");
+
+        return reply.status(HttpStatus.OK).send({
+            status: "success",
+            token,
+            user,
         });
-      }
-  
-      // Authentification via le service
-      const { token, user } = await this.authService.login(loginDto, request.server);
-  
-      ResponseHandler.success("✅ Connexion réussie", user, request);
-      request.log.info("🔑 Token envoyé au client (@controller)");
-  
-      return reply.status(HttpStatus.OK).send({
-        status: "success",
-        token,
-        user,
-      });
-  
-    } catch (error) {
-      ResponseHandler.error("❌ Échec de connexion", (error as Error).message, request);
-      return reply.status(HttpStatus.UNAUTHORIZED).send({
-        status: "error",
-        errorCode: HttpStatus.UNAUTHORIZED,
-        message: HttpMessages.UNAUTHORIZED,
-        error: (error as Error).message,
-      });
+
+    } catch (error: any) {
+        if (error instanceof BaseException) {
+            ResponseHandler.error("❌ Erreur de connexion", error.message, request);
+            return reply.status(error.statusCode).send({
+                status: "error",
+                errorCode: error.statusCode,
+                message: error.message,
+            });
+        }
+
+        ResponseHandler.error("❌ Erreur inconnue", error.message, request);
+        return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+            status: "error",
+            errorCode: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: HttpMessages.INTERNAL_SERVER_ERROR,
+        });
     }
-  }
+}
+
   
   
 
