@@ -2,10 +2,14 @@ import { FastifyInstance } from 'fastify';
 import { ArticleController } from '../controllers/article.controller';
 import { ResponseHandler } from '../utils/response.handler';
 import { HttpStatus, HttpMessages } from '../config/http.config';
+import { EnvironnementLevel } from '../config/environnement.config';
+import { COLORS } from '../utils/colors.tui.utils';
 export async function articleGetRoutes(fastify: FastifyInstance) {
     const articleController = new ArticleController();
 
-    // Route GET /articles
+    /**
+     * Récupérer la liste des articles
+     */
     fastify.get('/', {
         schema: {
             tags: ['Articles'],
@@ -47,13 +51,17 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
         },
     }, async (request, reply) => {
         try {
-            console.log("GET * /articles");
-            console.table(request.user);
 
             const articles = await articleController.getAllArticles();
 
-            console.log("📤 Données envoyées :", JSON.stringify(articles, null, 2));
-
+            if (process.env.NODE_ENV === EnvironnementLevel.DEVELOPMENT) {
+                console.log(
+                    COLORS.GREEN +
+                        `@Route GET /articles : ${articles.length ? HttpMessages.SUCCESS : HttpMessages.NO_RESOURCES_FOUND}` +
+                        COLORS.RESET,
+                );
+            }
+            
             return reply.status(HttpStatus.OK).send({
                 status: "success",
                 message: articles.length ? HttpMessages.SUCCESS : HttpMessages.NO_RESOURCES_FOUND,
@@ -70,7 +78,9 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
     });
 
 
-    // Route GET /articles/:id
+    /**
+     * Récupérer un article par son ID
+     */
     fastify.get('/:id', {
         schema: {
             tags: ['Articles'],
@@ -78,11 +88,11 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
             params: {
                 type: 'object',
                 properties: {
-                    id: { type: 'integer', description: "ID de l'article" }, // Correction: integer au lieu de string
+                    id: { type: 'integer', description: "ID de l'article" },
                 },
             },
             response: {
-                200: {
+                [HttpStatus.OK]: {
                     type: 'object',
                     properties: {
                         id: { type: 'number' },
@@ -94,7 +104,7 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
                         createdById: { type: 'number', nullable: true },
                     },
                 },
-                404: {
+                [HttpStatus.NOT_FOUND]: {
                     type: 'object',
                     properties: {
                         status: { type: 'string' },
@@ -106,19 +116,32 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
         },
     }, async (request, reply) => {
         try {
-            const { id } = request.params as { id: number };
+            
+            const id = Number((request.params as { id: string }).id);
+            if (isNaN(id)) {
+                return reply.status(400).send({ status: 'error', message: "ID invalide" });
+            }
             const article = await articleController.getArticleById(id);
-
             if (!article) {
+                if (process.env.NODE_ENV === EnvironnementLevel.DEVELOPMENT) {
+                    console.log(
+                        COLORS.RED +
+                            `@Route GET /articles/${id} : Article avec l'ID ${id} introuvable.` +
+                            COLORS.RESET,
+                    );
+                }
+                
                 return reply.status(404).send({
                     status: 'error',
                     message: `Article avec l'ID ${id} introuvable.`,
                 });
             }
-
+    
             ResponseHandler.success("Article récupéré avec succès.", article, request);
+            return reply.send(article);
+    
         } catch (error) {
-            ResponseHandler.error("Erreur lors de la récupération de l'article", error, request);
+            return ResponseHandler.error("Erreur lors de la récupération de l'article", error, request);
         }
     });
-}
+}    

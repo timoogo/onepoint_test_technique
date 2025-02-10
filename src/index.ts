@@ -13,6 +13,8 @@ import { ArticleRoutes } from "./routes/article.routes";
 import { HttpMessages, HttpStatus } from "./config/http.config";
 import { RedisService } from "./services/redis.service";
 import { RedisDebugService } from "./services/redis.debug.service";
+import { Prisma } from "@prisma/client";
+import { PrismaService } from "./services/prisma.service";
 
 dotenv.config();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -29,6 +31,8 @@ const redisService = process.env.ENVIRONNEMENT_LEVEL === EnvironnementLevel.DEVE
   : new RedisService(); // ✅ En prod, la version sécurisée sans debug
 
 export { redisService };
+
+const prisma = PrismaService.getInstance();
 
 // Enregistrement du plugin JWT
 app.register(jwt, {
@@ -107,31 +111,59 @@ app.setErrorHandler((error, request, reply) => {
 
 // Hook pour formater et enrichir la réponse
 app.addHook("onSend", async (request, reply, payload) => {
-	try {
-	  // ✅ Vérifie si le payload est vide et corrige
-	  if (typeof payload === "string" && payload.trim() === "") {
-		request.log.warn("⚠️ Réponse vide détectée, correction...");
-		return JSON.stringify({
-		  status: "error",
-		  message: "Réponse vide inattendue",
-		});
-	  }
-  
-	  // ✅ Si l'utilisateur est présent, enrichir la réponse
-	  if (request.user) {
-		const parsedPayload = typeof payload === "string" ? JSON.parse(payload) : payload;
-		return JSON.stringify({
-		  ...parsedPayload,
-		  user: request.user,
-		});
-	  }
-  
-	  return payload;
+    try {
+        // ✅ Vérifier si le payload est vide et renvoyer un message d'erreur cohérent
+        if (typeof payload === "string" && payload.trim() === "") {
+            request.log.warn("⚠️ Réponse vide détectée, correction...");
+            return JSON.stringify({
+                status: "error",
+                message: "Réponse vide inattendue",
+            });
+        }
+
+        // ✅ Vérifier si le payload est une réponse JSON
+        let parsedPayload;
+        try {
+            parsedPayload = typeof payload === "string" ? JSON.parse(payload) : payload;
+        } catch (err) {
+            request.log.error("⚠️ Impossible de parser le payload en JSON :", err);
+            return payload; // Ne pas modifier si le parsing échoue
+        }
+
+        // ✅ Si la réponse contient déjà un `user`, ne rien modifier
+        if (parsedPayload && typeof parsedPayload === "object" && "user" in parsedPayload) {
+            request.log.info("ℹ️ L'utilisateur est déjà présent dans la réponse, aucune modification.");
+            return payload;
+        }
+
+        // ✅ Si `request.user` est présent, NE PAS l’injecter dans toutes les réponses
+        if (request.user) {
+            request.log.info("ℹ️ Utilisateur détecté, mais non injecté dans la réponse.");
+        }
+
+        // ✅ Retourner le payload d'origine sans le modifier
+        return payload;
+    } catch (error) {
+        request.log.error("⚠️ Erreur dans le hook onSend :", error);
+        return payload; // Ne pas interrompre la requête en cas d'erreur dans onSend
+    }
+});
+
+/**
+ * Fermeture de la connexion à la base de données lors de la fermeture de l'application
+ */
+app.addHook("onClose", async () => {
+	try{
+		app.log.info("Fermeture de la connexion à la base de données...");
+		await prisma.disconnect();
+		await redisService.disconnect();
+		app.log.info("Connexion à la base de données fermée avec succès.");
 	} catch (error) {
-	  request.log.error("⚠️ Erreur lors du traitement de la réponse", error);
-	  return payload;
+		app.log.error("❌ Erreur lors de la fermeture de la connexion à la base de données :", error);
 	}
-  });
+})
+
+
   
 // Configuration de Swagger
 app.register(swagger, {
@@ -196,6 +228,41 @@ app.ready(async () => {
 	app.log.info(`[INFO] isAuthenticated : ${isAuthenticated}`);
 	app.log.info("✅ Serveur en écoute et opérationnel !");
 });
+const shutdown = async (signal: string) => {
+    console.log(`🛑 Shutdown appelé avec le signal : ${signal}`);
+    app.log.info(`🔴 Signal reçu (${signal}), fermeture de l'application...`);
+    try {
+        await prisma.disconnect();
+        await redisService.disconnect();
+        app.log.info("✅ Application fermée proprement.");
+    } catch (error) {
+        app.log.error("❌ Erreur lors de l'arrêt du serveur :", error);
+    } finally {
+        console.log("💀 Processus en train de s'arrêter...");
+        process.exit(1);
+    }
+};
+
+
+// ✅ Attacher les signaux système proprement
+const signals = ["SIGINT", "SIGTERM"];
+signals.forEach((signal) => {
+	console.log(`🔴 Signal reçu (${signal}), fermeture de l'application...`);
+    process.on(signal, () => shutdown(signal));
+});
+
+// ✅ `beforeExit` pour fermer proprement avant la sortie
+process.on("beforeExit", async () => {
+    console.log("⚠️ Processus en train de se fermer...");
+    await shutdown("beforeExit");
+});
+
+// ✅ `exit` pour logguer une dernière info avant l'arrêt total
+process.on("exit", () => {
+    console.log("💀 Processus terminé.");
+});
+
+
 
 // Lancement du serveur
 const start = async () => {
@@ -227,7 +294,5 @@ const start = async () => {
 		process.exit(1);
 	}
 };
-
-start();
 
 start();

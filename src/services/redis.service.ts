@@ -50,4 +50,8 @@ export class RedisService {
         return false;
         }
     }
+
+  public async disconnect(): Promise<void> {
+    await this.client.quit();
+  }
 }

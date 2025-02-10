@@ -1,8 +1,10 @@
-export const ArticleConfig = {
-  TITLE_LENGTH: { MIN: 5, MAX: 100 },
-  DESCRIPTION_LENGTH: { MIN: 10, MAX: 250 },
-  CONTENT_LENGTH: { MIN: 10, MAX: 10000 },
-} as const;
+export class ArticleConfig {
+  static readonly TITLE_LENGTH = { MIN: 5, MAX: 100 };
+  static readonly DESCRIPTION_LENGTH = { MIN: 10, MAX: 250 };
+  static readonly CONTENT_LENGTH = { MIN: 10, MAX: 10000 };
+}
+
+
 
 export const ArticleMessages = {
   TITLE_REQUIRED: "Le titre est obligatoire",
@@ -14,3 +16,4 @@ export const ArticleMessages = {
   CONTENT_REQUIRED: "Le contenu est obligatoire",
   CONTENT_LENGTH: `Le contenu doit contenir entre ${ArticleConfig.CONTENT_LENGTH.MIN} et ${ArticleConfig.CONTENT_LENGTH.MAX} caractères`,
 };
+

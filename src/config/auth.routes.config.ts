@@ -1,11 +1,12 @@
-import { loginModel, loginResponseModel } from "../models/auth.models";
+import { bodyLoginModel, loginResponseModel } from "../models/auth.models";
 import { HttpMessages, HttpStatus } from "./http.config";
+import { LoginDocExample } from "./user.config";
 
 export const LoginRouteDefinition = {
-    schema: {
-        consumes: ["application/json"],
-        produces: ["application/json"],
-        description: `
+	schema: {
+		consumes: ["application/json"],
+		produces: ["application/json"],
+		description: `
           Cette route permet à un utilisateur de se connecter en fournissant un email et un mot de passe valides.  
           En cas de succès, un token JWT est retourné pour permettre l'authentification aux routes protégées.  
 
@@ -45,31 +46,39 @@ export const LoginRouteDefinition = {
           }
           \`\`\`
         `,
-        tags: ["Auth"],
-        body: loginModel,
-        response: {
-            200: loginResponseModel,
-            400: {
-                type: "object",
-                properties: {
-                    message: { type: "string", description: "Erreur de validation des champs." },
-                },
-            },
-            401: {
-                type: "object",
-                properties: {
-                    message: {
-                        type: "string",
-                        description: "Message d'erreur en cas d'identifiants incorrects",
-                    },
-                },
-            },
-            500: {
-                type: "object",
-                properties: {
-                    message: { type: "string", description: HttpMessages.INTERNAL_SERVER_ERROR },
-                },
-            },
-        },
-    },
+		tags: ["Auth"],
+		body: bodyLoginModel,
+		examples: [...LoginDocExample],
+
+		response: {
+			200: loginResponseModel,
+			400: {
+				type: "object",
+				properties: {
+					message: {
+						type: "string",
+						description: "Erreur de validation des champs.",
+					},
+				},
+			},
+			401: {
+				type: "object",
+				properties: {
+					message: {
+						type: "string",
+						description: "Message d'erreur en cas d'identifiants incorrects",
+					},
+				},
+			},
+			500: {
+				type: "object",
+				properties: {
+					message: {
+						type: "string",
+						description: HttpMessages.INTERNAL_SERVER_ERROR,
+					},
+				},
+			},
+		},
+	},
 };

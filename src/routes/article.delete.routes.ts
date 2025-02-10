@@ -4,6 +4,10 @@ import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
 import { ResponseHandler } from "../utils/response.handler";
 
+/**
+ * Route DELETE /articles/:id
+ * Supprimer un article (Admin seulement)
+ */
 export async function articleDeleteRoutes(fastify: FastifyInstance) {
 	const articleController = new ArticleController();
 	// Route GET /articles/:id

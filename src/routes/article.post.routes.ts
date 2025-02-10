@@ -10,6 +10,10 @@ import { ResponseHandler } from "../utils/response.handler";
 
 const articleService = new ArticleService();
 
+/**
+ * Route POST /articles
+ * Créer un nouvel article (admin uniquement)
+ */
 export async function articlePostRoutes(app: FastifyInstance) {
 	app.post<{ Body: CreateArticleDTO }>(
 		"/",

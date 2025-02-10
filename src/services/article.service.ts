@@ -1,13 +1,26 @@
-import { PrismaClient } from "@prisma/client";
+import { Article } from "@prisma/client";
+import { PrismaService } from "./prisma.service";
 
-const prisma = new PrismaClient();
+const prisma = PrismaService.getInstance().getPrisma();
 
+/**
+ * Service gérant les opérations CRUD sur les articles
+ * @class ArticleService
+ */
 export class ArticleService {
 
 	/**
-	 * Récupérer tous les articles
+	 * Récupérer tous les articles, avec tous les champs 
+	 * @returns Promise<>
+	 * {
+	 * 	status: [success, error],
+	 * 	message: [message de succès ou d'erreur],
+	 * 	data: [...articles],
+	 * }
+	 * 	 * Si des articles n'ont pas de créateur, les champs `createdBy` et `createdById` seront `null`
+	 * 	 * Si des articles ont un créateur, les champs `createdBy` et `createdById` seront renseignés
 	 */
-	async getAllArticles() {
+	async getAllArticles(): Promise<Article[]> {
         try {
             const articles = await prisma.article.findMany({
                 select: {
@@ -23,8 +36,6 @@ export class ArticleService {
                     },
                 },
             });
-
-            // 🔹 S'assurer que `createdBy` est `null` au lieu d'`undefined`
             return articles.map(article => ({
                 ...article,
                 createdBy: article.createdBy ?? null,
@@ -82,6 +93,10 @@ export class ArticleService {
 		});
 	}
 
+	/**
+	 * Réassigner les articles d'un utilisateur à un autre.
+	 * Utile lors d'une suppression d'utilisateur. La logique n'est pas implémentée pour le moment, la réassignation est à faire manuellement.
+	 */
 	async reassignArticles(oldUserId: number | null, newUserId: number) {
 		return await prisma.article.updateMany({
 			where: { createdById: oldUserId }, // Supporte null
@@ -98,6 +113,9 @@ export class ArticleService {
 		});
 	}
 
+	/**
+	 * Compter le nombre d'articles non assignés
+	 */
 	async countUnassignedArticles() {
 		return await prisma.article.count({ where: { createdById: null } });
 	}

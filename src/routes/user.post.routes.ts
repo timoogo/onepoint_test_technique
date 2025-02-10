@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest } from "fastify";
-import { DocExample, UserConfig, UserRoles } from "../config/user.config";
+import { RegisterDocExample, UserConfig } from "../config/user.config";
 import { UserController } from "../controllers/user.controller";
 import { CreateUserDto } from "../dtos/create-user.dto";
 import { validateDto } from "../middlewares/validate-dto.middleware";
@@ -13,8 +13,7 @@ export async function userPostRoutes(fastify: FastifyInstance) {
 	fastify.post(
 		"/register",
 		{
-			preHandler: [], // ✅ Aucun middleware nécessaire pour cette route
-
+			preHandler: [],
 			schema: {
 				security: [],
 				consumes: ["application/json"],
@@ -83,27 +82,27 @@ export async function userPostRoutes(fastify: FastifyInstance) {
 							minLength: UserConfig.NAME_LENGTH.MIN,
 							maxLength: UserConfig.NAME_LENGTH.MAX,
 							description: "Nom complet de l'utilisateur",
-							examples: [DocExample[0].name],
+							examples: [RegisterDocExample[0].name],
 						},
 						email: {
 							type: "string",
 							format: "email",
 							description: "Adresse email",
-							examples: [DocExample[0].email],
+							examples: RegisterDocExample.map((example) => example.email),
 						},
 						password: {
 							type: "string",
 							description: "Mot de passe sécurisé",
-							examples: [DocExample[0].password],
+							examples: RegisterDocExample.map((example) => example.password),
 						},
 						role: {
 							type: "string",
 							enum: [...UserConfig.UserRolesArray],
 							description: "Rôle de l'utilisateur",
-							examples: [UserRoles.USER],
+							examples: RegisterDocExample.map((example) => example.role),
 						},
 					},
-					examples: [...DocExample],
+					examples: [...RegisterDocExample],
 				},
 
 				response: {

@@ -1,9 +1,8 @@
 import dotenv from "dotenv";
 import { FastifyInstance } from "fastify";
+import { LoginRouteDefinition } from "../config/auth.routes.config";
 import { AuthController } from "../controllers/auth.controller";
 import { LoginDto } from "../dtos/login.dto";
-import { loginModel, loginResponseModel } from "../models/auth.models";
-import { LoginRouteDefinition } from "../config/auth.routes.config";
 
 dotenv.config();
 

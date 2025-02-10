@@ -7,7 +7,10 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 	const articleService = new ArticleService();
 	const userService = new UserService();
 
-	// Modifier un article (Admin seulement)
+	/**
+	 * Route PUT /articles/:id
+	 * Modifier un article (Admin seulement)
+	 */
 	fastify.put<{
 		Params: { id: string };
 		Body: { title?: string; description?: string; content?: string };
