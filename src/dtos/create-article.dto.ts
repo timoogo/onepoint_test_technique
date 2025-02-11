@@ -27,7 +27,4 @@ export class CreateArticleDTO {
   )
   content!: string;
 
-  constructor(data: Partial<CreateArticleDTO>) {
-    Object.assign(this, data);
-  }
 }

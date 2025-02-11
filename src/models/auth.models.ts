@@ -1,4 +1,4 @@
-import { LoginDocExample, UserRoles } from "../config/user.config";
+import { DEFAULT_USER_ROLE, LoginDocExample, UserConfig, UserRoles } from "../config/user.config";
 import { Schema } from "../types/schema.type";
 
 export const bodyLoginModel: Schema = {
@@ -14,7 +14,7 @@ export const bodyLoginModel: Schema = {
 		},
 		password: {
 			type: "string",
-			minLength: 6,
+			minLength: UserConfig.PASSWORD_LENGTH.MIN,
 			description: "Mot de passe de l'utilisateur pour la connexion",
 			examples: LoginDocExample.map((example) => example.password),
 		},
@@ -43,13 +43,13 @@ export const registerModel: Schema = {
 		},
 		name: {
 			type: "string",
-			minLength: 3,
-			description: "Nom de l'utilisateur (minimum 3 caractères)",
+			minLength: UserConfig.NAME_LENGTH.MIN,
+			description: `Nom de l'utilisateur (minimum ${UserConfig.NAME_LENGTH.MIN} caractères)`,
 		},
 		password: {
 			type: "string",
-			minLength: 6,
-			description: "Mot de passe (minimum 6 caractères, haché en base)",
+			minLength: UserConfig.PASSWORD_LENGTH.MIN,
+			description: `Mot de passe de l'utilisateur (minimum ${UserConfig.PASSWORD_LENGTH.MIN} caractères)`,
 		},
 	},
 };
@@ -69,23 +69,26 @@ export const registeredUserModel: Schema = {
 		},
 		name: {
 			type: "string",
-			minLength: 3,
+			minLength: UserConfig.NAME_LENGTH.MIN,
 			description: "Nom de l'utilisateur",
 		},
 		role: {
 			type: "string",
 			enum: ["user", "admin"],
 			description: "Rôle de l'utilisateur (user ou admin)",
+			default: DEFAULT_USER_ROLE,
 		},
 		createdAt: {
 			type: "string",
 			format: "date-time",
 			description: "Date de création de l'utilisateur",
+			default: new Date().toISOString(),
 		},
 		updatedAt: {
 			type: "string",
 			format: "date-time",
 			description: "Date de dernière mise à jour de l'utilisateur",
+			default: new Date().toISOString(),
 		},
 	},
 };

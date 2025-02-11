@@ -20,6 +20,9 @@ export const HttpStatus = {
     TOKEN_MISSING: "Token manquant",
     TOKEN_BLACKLISTED: "Token révoqué",
     NO_RESOURCES_FOUND: "Aucune ressource trouvée.",
+    RESOURCE_NOT_FOUND: "Ressource non trouvée.",
+    RESOURCES_NOT_FOUND: "Ressources non trouvées.",
+    RESOURCES_FOUND: "Ressources trouvées.",
   };
 
   

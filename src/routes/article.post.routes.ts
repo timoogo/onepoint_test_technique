@@ -7,7 +7,8 @@ import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
 import { ArticleService } from "../services/article.service";
 import { ResponseHandler } from "../utils/response.handler";
-
+import { ArticleSchemas } from "../config/article.config";
+import { HttpStatus } from "../config/http.config";
 const articleService = new ArticleService();
 
 /**
@@ -19,45 +20,7 @@ export async function articlePostRoutes(app: FastifyInstance) {
 		"/",
 		{
 			preHandler: [isAuthenticated, isAdmin], // ✅ Vérifie l'authentification AVANT l'admin
-
-			schema: {
-				summary: "Créer un nouvel article",
-				description: "Créer un nouvel article (admin uniquement)",
-				tags: ["Articles"],
-				security: [{ BearerAuth: [] }],
-				body: {
-					type: "object",
-					required: ["title", "description", "content"],
-					properties: {
-						title: { type: "string", description: "Titre de l'article" },
-						description: { type: "string", description: "Brève description" },
-						content: { type: "string", description: "Contenu de l'article" },
-					},
-				},
-				response: {
-					201: {
-						description: "Article créé avec succès",
-						type: "object",
-						properties: {
-							message: { type: "string" },
-							article: {
-								type: "object",
-								properties: {
-									id: { type: "number" },
-									title: { type: "string" },
-									description: { type: "string" },
-									content: { type: "string" },
-									createdAt: { type: "string", format: "date-time" },
-									createdBy: { type: "number" },
-								},
-							},
-						},
-					},
-					400: { description: "Erreur de validation" },
-					401: { description: "Non autorisé" },
-					500: { description: "Erreur serveur" },
-				},
-			},
+			schema: ArticleSchemas.CreateArticle,
 		},
 		async (request, reply) => {
 			try {
@@ -74,7 +37,7 @@ export async function articlePostRoutes(app: FastifyInstance) {
 						}
 
 						ResponseHandler.error("Validation échouée", reply);
-            return reply.status(400).send({
+            return reply.status(HttpStatus.BAD_REQUEST).send({
               status: "error",
               message: "Validation échouée",
               errors: errors.map((error) => ({
@@ -109,7 +72,7 @@ export async function articlePostRoutes(app: FastifyInstance) {
 
         // Réponse
         ResponseHandler.success("Article créé avec succès", article);
-        return reply.status(201).send({
+        return reply.status(HttpStatus.CREATED).send({
           message: "Article créé avec succès",
           article,
         });

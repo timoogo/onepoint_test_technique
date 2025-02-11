@@ -1,8 +1,10 @@
 export enum UserRoles {
 	ADMIN = "admin",
 	USER = "user",
+	
 }
 
+export const DEFAULT_USER_ROLE = UserRoles.USER;
 // Itérable UserRoles
 
 export const RegisterDocExample = [
@@ -32,7 +34,8 @@ export const LoginDocExample = [
 ];
 export class UserConfig {
 	static readonly UserRolesArray = Object.values(UserRoles);
-
+	static readonly TRACE: boolean = true;
+    static readonly minimalLogLevel: "DEBUG" | "INFO" | "SUCCESS" | "ERROR" = "INFO";
 	static readonly ID = {
 		REQUIRED_MESSAGE: "L'id est obligatoire.",
 		TYPE_MESSAGE: "L'id doit être un nombre.",

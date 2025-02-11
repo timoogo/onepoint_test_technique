@@ -51,8 +51,8 @@ export const LoginRouteDefinition = {
 		examples: [...LoginDocExample],
 
 		response: {
-			200: loginResponseModel,
-			400: {
+			[HttpStatus.OK]: loginResponseModel,
+			[HttpStatus.BAD_REQUEST]: {
 				type: "object",
 				properties: {
 					message: {
@@ -61,7 +61,7 @@ export const LoginRouteDefinition = {
 					},
 				},
 			},
-			401: {
+			[HttpStatus.UNAUTHORIZED]: {
 				type: "object",
 				properties: {
 					message: {
@@ -70,7 +70,7 @@ export const LoginRouteDefinition = {
 					},
 				},
 			},
-			500: {
+			[HttpStatus.INTERNAL_SERVER_ERROR]: {
 				type: "object",
 				properties: {
 					message: {

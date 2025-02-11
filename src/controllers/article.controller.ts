@@ -72,4 +72,12 @@ export class ArticleController {
 	async deleteArticleById(id: number) {
 		return await this.articleService.deleteArticleById(id);
 	}
+
+
+	/** 
+	 * Retourne les articles paginés
+	*/
+    async getPaginatedArticles(limit: number, offset: number) {
+		return await this.articleService.getPaginatedArticles(limit, offset);
+    }
 }

@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Editor settings
 .vscode/
+settings.json
 .idea/
 *.swp
 *.swo
