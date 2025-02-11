@@ -1,5 +1,4 @@
 import { FastifyInstance } from "fastify";
-import { ArticleConfig, ArticleSchemas } from "../config/article.config";
 import { HttpStatus } from "../config/http.config";
 import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
@@ -7,6 +6,8 @@ import { ArticleService } from "../services/article.service";
 import { UserService } from "../services/user.service";
 import { ResponseHandler } from "../utils/response.handler";
 import { UserConfig } from "../config/user.config";
+import { ArticleConfig } from "../config/article.config";
+import { ArticleSchemas } from "../schemas/article.schema";
 export async function articlePutRoutes(fastify: FastifyInstance) {
 	const articleService = new ArticleService();
 	const userService = new UserService();

@@ -1,11 +1,12 @@
 import { FastifyInstance } from "fastify";
-import { ArticleConfig, ArticleSchemas } from "../config/article.config";
+import { ArticleConfig } from "../config/article.config";
 import { EnvironnementLevel } from "../config/environnement.config";
 import { HttpMessages, HttpStatus } from "../config/http.config";
 import { ArticleController } from "../controllers/article.controller";
 import { COLORS } from "../utils/colors.tui.utils";
 import { ResponseHandler } from "../utils/response.handler";
 import { count } from "console";
+import { ArticleSchemas } from "../schemas/article.schema";
 export async function articleGetRoutes(fastify: FastifyInstance) {
 	const articleController = new ArticleController();
 
@@ -21,7 +22,7 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
         },
         async (request, reply) => {
             const page = request.query.page ?? ArticleConfig.DEFAULT_PAGE;
-            const limit = Math.min(request.query.limit ?? ArticleConfig.DEFAULT_LIMIT, ArticleConfig.MAX_LIMIT);
+            const limit = Math.min(request.query.limit ?? ArticleConfig.DEFAULT_LIMIT, ArticleConfig.PAGE_MAX_LIMIT);
             const offset = (page - 1) * limit;
             const context = request.query;
             

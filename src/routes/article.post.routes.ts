@@ -7,8 +7,8 @@ import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
 import { ArticleService } from "../services/article.service";
 import { ResponseHandler } from "../utils/response.handler";
-import { ArticleSchemas } from "../config/article.config";
 import { HttpStatus } from "../config/http.config";
+import { ArticleSchemas } from "../schemas/article.schema";
 const articleService = new ArticleService();
 
 /**

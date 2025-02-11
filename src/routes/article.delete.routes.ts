@@ -1,10 +1,10 @@
 import { FastifyInstance } from "fastify";
-import { ArticleSchemas } from "../config/article.config";
 import { HttpStatus } from "../config/http.config";
 import { ArticleController } from "../controllers/article.controller";
 import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
 import { ResponseHandler } from "../utils/response.handler";
+import { ArticleSchemas } from "../schemas/article.schema";
 
 /**
  * Route DELETE /articles/:id
