@@ -32,8 +32,13 @@ export async function userGetRoutes(fastify: FastifyInstance) {
 				ip: request.ip,
 				ips: request.ips,
 			});
+<<<<<<< HEAD
 			const page = request.query.page ?? UserConfig.DEFAULT_PAGE;
 			const limit = Math.min(request.query.limit ?? UserConfig.DEFAULT_LIMIT, UserConfig.PAGE_MAX_LIMIT);
+=======
+			const page = request.query.page ?? UserConfig.PaginationConfig.DEFAULT_PAGE;
+			const limit = Math.min(request.query.limit ?? UserConfig.PaginationConfig.DEFAULT_LIMIT, UserConfig.PaginationConfig.PAGE_MAX_LIMIT);
+>>>>>>> c6183d8 (Refacto index.ts)
 			const offset = (page - 1) * limit;
 			const context = request.query;
 
