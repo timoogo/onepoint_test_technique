@@ -2,51 +2,42 @@ import { Transform } from "class-transformer";
 import {
   IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   Length,
   Matches,
 } from "class-validator";
 import { UserConfig } from "../config/user.config";
+import { UserMessages } from "../messages/user.messages";
 
-export class CreateUserDto {
-  // @IsNotEmpty({ message: UserConfig.ID.REQUIRED_MESSAGE })
-  // @IsNumber({}, { message: UserConfig.ID.TYPE_MESSAGE })
-  // @IsPositive({ message: UserConfig.ID.POSITIVE_MESSAGE })
-  // id!: number;
-
-  @IsNotEmpty({ message: UserConfig.NAME.REQUIRED_MESSAGE })
-  @IsString({ message: UserConfig.NAME.TYPE_MESSAGE })
+export class CreateUserDTO {
+  @IsNotEmpty({ message: UserMessages.NAME_REQUIRED })
+  @IsString({ message: UserMessages.NAME_TYPE })
   @Length(UserConfig.NAME_LENGTH.MIN, UserConfig.NAME_LENGTH.MAX, {
-    message: UserConfig.NAME.LENGTH_MESSAGE,
+    message: UserMessages.NAME_LENGTH,
   })
   name!: string;
 
-  @IsNotEmpty({ message: UserConfig.EMAIL.REQUIRED_MESSAGE })
-  @IsEmail({}, { message: UserConfig.EMAIL.INVALID_MESSAGE })
+  @IsNotEmpty({ message: UserMessages.EMAIL_REQUIRED })
+  @IsEmail({}, { message: UserMessages.EMAIL_INVALID })
   email!: string;
 
-  @IsNotEmpty({ message: UserConfig.PASSWORD.REQUIRED_MESSAGE })
-  @IsString({ message: UserConfig.PASSWORD.TYPE_MESSAGE })
+  @IsNotEmpty({ message: UserMessages.PASSWORD_REQUIRED })
+  @IsString({ message: UserMessages.PASSWORD_TYPE })
   @Length(UserConfig.PASSWORD_LENGTH.MIN, UserConfig.PASSWORD_LENGTH.MAX, {
-    message: UserConfig.PASSWORD.LENGTH_MESSAGE,
+    message: UserMessages.PASSWORD_LENGTH,
   })
   @Matches(UserConfig.PASSWORD.REGEX, {
-    message: UserConfig.PASSWORD.PATTERN_MESSAGE,
+    message: UserMessages.PASSWORD_PATTERN,
   })
   password!: string;
 
   @IsOptional()
-  @IsString({ message: UserConfig.ROLE.TYPE_MESSAGE })
-  @Transform(({ value }) => (value ? value.toLowerCase() : UserConfig.ROLE.DEFAULT))
+  @IsString({ message: UserMessages.ROLE_TYPE })
+  @Transform(({ value }) => (value ? value.toUpperCase() : UserConfig.ROLE.DEFAULT))
   @Matches(UserConfig.ROLE.PATTERN, {
-    message: UserConfig.ROLE.PATTERN_MESSAGE,
+    message: UserMessages.ROLE_PATTERN,
   })
   role?: string = UserConfig.ROLE.DEFAULT;
 
-  constructor(data?: Partial<CreateUserDto>) {
-    Object.assign(this, data);
-  }
 }

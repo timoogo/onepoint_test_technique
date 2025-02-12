@@ -8,9 +8,8 @@ const prisma = PrismaService.getInstance().getPrisma();
  * @class ArticleService
  */
 export class ArticleService {
-
 	/**
-	 * Récupérer tous les articles, avec tous les champs 
+	 * Récupérer tous les articles, avec tous les champs
 	 * @returns Promise<>
 	 * {
 	 * 	status: [success, error],
@@ -21,31 +20,30 @@ export class ArticleService {
 	 * 	 * Si des articles ont un créateur, les champs `createdBy` et `createdById` seront renseignés
 	 */
 	async getAllArticles(): Promise<Article[]> {
-        try {
-            const articles = await prisma.article.findMany({
-                select: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    content: true,
-                    createdAt: true,
-                    updatedAt: true,
-                    createdById: true,
-                    createdBy: {
-                        select: { id: true, name: true, email: true },
-                    },
-                },
-            });
-            return articles.map(article => ({
-                ...article,
-                createdBy: article.createdBy ?? null,
-            }));
-
-        } catch (error) {
-            console.error("❌ Erreur lors de la récupération des articles :", error);
-            throw new Error("Impossible de récupérer les articles.");
-        }
-    }
+		try {
+			const articles = await prisma.article.findMany({
+				select: {
+					id: true,
+					title: true,
+					description: true,
+					content: true,
+					createdAt: true,
+					updatedAt: true,
+					createdById: true,
+					createdBy: {
+						select: { id: true, name: true, email: true },
+					},
+				},
+			});
+			return articles.map((article) => ({
+				...article,
+				createdBy: article.createdBy ?? null,
+			}));
+		} catch (error) {
+			console.error("❌ Erreur lors de la récupération des articles :", error);
+			throw new Error("Impossible de récupérer les articles.");
+		}
+	}
 
 	/**
 	 * Récupérer un article par son ID
@@ -85,7 +83,7 @@ export class ArticleService {
 	 */
 	async updateArticleById(
 		id: number,
-		data: { title?: string; description?: string; content?: string }
+		data: { title?: string; description?: string; content?: string },
 	) {
 		console.log("🔍 Mise à jour de l'article :", id, data);
 		return prisma.article.update({
@@ -93,40 +91,37 @@ export class ArticleService {
 			data,
 		});
 	}
-	
 
 	/**
 	 * Réassigner les articles d'un utilisateur à un autre.
 	 * Utile lors d'une suppression d'utilisateur. La logique n'est pas implémentée pour le moment, la réassignation est à faire manuellement.
 	 */
-	async reassignArticles(oldUserId: number | null, newUserId: number) {
-		// Mettre à jour les articles
-		await prisma.article.updateMany({
+	async reassignArticles(oldUserId: number | null, newUserId: number, page = 1, limit = 10) {
+		const skip = (page - 1) * limit;
+		const updatedArticles = await prisma.article.updateMany({
 			where: { createdById: oldUserId },
 			data: { createdById: newUserId },
 		});
 	
-		// Récupérer les articles qui ont été modifiés
-		const updatedArticles = await prisma.article.findMany({
+		const articles = await prisma.article.findMany({
 			where: { createdById: newUserId },
-			select: {
-				id: true,
-				title: true,
-				description: true,
-				content: true,
-				createdAt: true,
-				updatedAt: true,
-			},
+			orderBy: { id: "asc" }, 
+			skip: skip, 
+			take: limit, 
 		});
 	
-		return {
-			count: updatedArticles.length,
-			articles: updatedArticles, // ✅ Retourne la liste des articles modifiés
-		};
+		const total = await prisma.article.count({
+			where: { createdById: newUserId },
+		});
+	
+		return { count: updatedArticles.count, total, articles };
 	}
 	
-
-	async reassignArticle(articleId: number, oldUserId: number ,newUserId: number) {
+	async reassignArticle(
+		articleId: number,
+		oldUserId: number,
+		newUserId: number,
+	) {
 		return await prisma.article.update({
 			where: { id: articleId, createdById: oldUserId },
 			data: { createdById: newUserId },
@@ -149,30 +144,32 @@ export class ArticleService {
 		return await prisma.article.count({ where: { createdById: null } });
 	}
 
-	 /**
-     * Récupère les articles paginés avec le nombre total d'articles
-     * @param limit Nombre d'articles par page
-     * @param offset Nombre d'articles à ignorer (pour paginer)
-     * @returns [Liste des articles, Nombre total d'articles]
-     */
-	 async getPaginatedArticles(limit: number, offset: number) {
-        try {
-            const articles = await prisma.article.findMany({
-                skip: offset,
-                take: limit,
-                include: {
-                    createdBy: { select: { id: true, name: true, email: true } }, // ✅ Inclut l’auteur de l’article
-                },
-                orderBy: { createdAt: "desc" }, // ✅ Trie par date de création (plus récent en premier)
-            });
+	/**
+	 * Récupère les articles paginés avec le nombre total d'articles
+	 * @param limit Nombre d'articles par page
+	 * @param offset Nombre d'articles à ignorer (pour paginer)
+	 * @returns [Liste des articles, Nombre total d'articles]
+	 */
+	async getPaginatedArticles(limit: number, offset: number) {
+		try {
+			const articles = await prisma.article.findMany({
+				skip: offset,
+				take: limit,
+				include: {
+					createdBy: { select: { id: true, name: true, email: true } }, // ✅ Inclut l’auteur de l’article
+				},
+				orderBy: { createdAt: "desc" }, // ✅ Trie par date de création (plus récent en premier)
+			});
 
-            const total = await prisma.article.count(); // ✅ Nombre total d’articles
+			const total = await prisma.article.count(); // ✅ Nombre total d’articles
 
-            return { articles, total }; // ✅ Retourne un objet `{ articles, total }`
-        } catch (error) {
-            console.error("❌ Erreur lors de la récupération des articles paginés :", error);
-            throw new Error("Erreur interne du serveur");
-        }
-    }
-	
+			return { articles, total }; // ✅ Retourne un objet `{ articles, total }`
+		} catch (error) {
+			console.error(
+				"❌ Erreur lors de la récupération des articles paginés :",
+				error,
+			);
+			throw new Error("Erreur interne du serveur");
+		}
+	}
 }

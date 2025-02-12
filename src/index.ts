@@ -15,6 +15,7 @@ import { RedisService } from "./services/redis.service";
 import { RedisDebugService } from "./services/redis.debug.service";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "./services/prisma.service";
+import { SecurityConfig } from "./config/security.config";
 
 dotenv.config();
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -181,7 +182,7 @@ app.register(swagger, {
 				},
 			},
 		},
-		security: [{ BearerAuth: [] }],
+		security: SecurityConfig.PUBLIC_ROUTE,
 	},
 });
 

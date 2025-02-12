@@ -1,0 +1,111 @@
+# Documentation de l'API
+
+## Configuration de la pagination {#pagination-config}
+
+La pagination est configurée par défaut avec les paramètres suivants :
+
+```typescript title="src/config/app.config.ts"
+// src/config/app.config.ts
+
+static readonly DEFAULT_PAGE = 1; // Page par défaut
+static readonly DEFAULT_LIMIT = 10; // Limite par défaut
+static readonly PAGE_MAX_LIMIT = 100; // Limite maximale
+static readonly PAGE_MIN_LIMIT = 1; // Limite minimale
+```
+
+## Configurer un module spécifique
+
+Pour configurer un module spécifique, il faut ouvrir le fichier de configuration du module et modifier les valeurs par défaut.
+
+### Exemple pour le module `article`
+
+```typescript title="src/config/article.config.ts"
+// src/config/article.config.ts
+
+static readonly DEFAULT_PAGE = 1; // Page par défaut
+static readonly DEFAULT_LIMIT = 5; // Changement de la limite par défaut
+static readonly PAGE_MAX_LIMIT = 100; // Limite maximale
+static readonly PAGE_MIN_LIMIT = 1; // Limite minimale
+```
+
+#### Impact
+
+Cela va impacter directement la route GET /articles car celle-ci utilise la pagination.
+La page et la limite peuvent être modifiées via les paramètres ?page et ?limit dans l'URL.
+
+```typescript title="src/routes/article.get.routes.ts"
+// src/routes/article.get.routes.ts:23-33
+
+const page = Math.max(
+	request.query.page ?? ArticleConfig.DEFAULT_PAGE,
+	ArticleConfig.PAGE_MIN_LIMIT,
+); // Assure que page ≥ PAGE_MIN_LIMIT
+const limit = Math.min(
+	Math.max(
+		request.query.limit ?? ArticleConfig.DEFAULT_LIMIT,
+		ArticleConfig.PAGE_MIN_LIMIT,
+	),
+	ArticleConfig.PAGE_MAX_LIMIT,
+); // Assure que limit est entre PAGE_MIN_LIMIT et PAGE_MAX_LIMIT
+const offset = (page - 1) * limit; // Décalage pour récupérer les bons articles en base de données
+const context = request.query;
+
+// Exemple de cas réussi
+return reply.status(HttpStatus.OK).send({
+	status: "success",
+	message: {
+		state: HttpMessages.RESOURCES_FOUND,
+		details: "Articles récupérés avec succès",
+	},
+	page,
+	limit,
+	total, // ✅ Ajout du total dans la réponse
+	data: articles,
+});
+```
+
+<details>
+    <summary>Exemple de réponse JSON</summary>
+    <br/>
+
+    > GET /articles?page=2&limit=5
+
+```json
+    {
+        "status": "success",
+        "message": {
+        "state": "RESOURCES_FOUND",
+        "details": "Articles récupérés avec succès"
+    },
+    "page": 1,
+    "limit": 5,
+    "total": 42,
+    "data": [{
+            "id": 1,
+            "title": "Premier article",
+            "description": "Un aperçu du premier article",
+            "createdAt": "2024-02-12T10:00:00Z"
+        },
+        {
+            "id": 2,
+            "title": "Deuxième article",
+            "description": "Un aperçu du deuxième article",
+            "createdAt": "2024-02-11T15:30:00Z"
+        }
+    ]}
+```
+</br>
+<h3>Champs</h3>
+
+| Champ | Type | Description |
+|-------|------|-------------|
+| status | string | Indique le statut global de la réponse (success ou error). |
+| message | object | Contient des informations détaillées sur l'état de la requête. |
+| state | string | Code représentant l'état de la requête (RESOURCES_FOUND, NOT_FOUND, etc.). |
+| details | string | Message explicatif sur l'état de la requête. |
+| page | number | Numéro de la page actuelle dans la pagination. |
+| limit | number | Nombre d'éléments retournés par page. |
+| total | number | Nombre total d'éléments disponibles. |
+| data | array | Liste des articles retournés. Chaque élément dépend du module. |
+
+</details>

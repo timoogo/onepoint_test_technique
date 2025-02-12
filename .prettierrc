@@ -5,5 +5,13 @@
 	"bracketSpacing": true,
 	"printWidth": 80,
 	"trailingComma": "all",
-	"singleQuote": false
+	"singleQuote": false,
+	"overrides": [
+		{
+			"files": "*.mdx",
+			"options": {
+				"printWidth": 250
+			}
+		}
+	]
 }

@@ -1,5 +1,7 @@
 import { AppConfig } from "./app.config";
 
+
+
 export class ConfigBase {
     /**
      * Vérifie si une valeur locale est définie, sinon retourne la valeur globale de `AppConfig`
@@ -10,4 +12,5 @@ export class ConfigBase {
     static getOrDefault<T>(key: keyof typeof AppConfig, localValue: T): T {
         return localValue !== "" ? localValue : (AppConfig as any)[key];
     }
+
 }

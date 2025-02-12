@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsString, Length } from "class-validator";
-import { ArticleConfig, ArticleMessages } from "../config/article.config";
+import { ArticleConfig } from "../config/article.config";
+import { ArticleMessages } from "../messages/article.messages";
 
 export class CreateArticleDTO {
   @IsString()

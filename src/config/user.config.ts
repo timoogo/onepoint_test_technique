@@ -1,41 +1,31 @@
+import { AppConfig } from "./app.config";
+import { ConfigBase } from "./config.base";
+import { DocConfig } from "./doc.config";
+
 export enum UserRoles {
 	ADMIN = "admin",
 	USER = "user",
 	
 }
-
-export const DEFAULT_USER_ROLE = UserRoles.USER;
-// Itérable UserRoles
-
-export const RegisterDocExample = [
-	{
-		name: "John Doe",
-		email: "johndoe@example.com",
-		password: "passwordComplic4ted!",
-		role: UserRoles.USER,
-	},
-	{
-		name: "Admin User",
-		email: "admin@example.com",
-		password: "SuperSecureP@ss123",
-		role: UserRoles.ADMIN,
-	},
-];
-
-export const LoginDocExample = [
-	{
-		email: "johndoe@example.com",
-		password: "passwordComplic4ted!",
-	},
-	{
-		email: "admin@example.com",
-		password: "SuperSecureP@ss123",
-	},
-];
-export class UserConfig {
+export class UserConfig extends ConfigBase {
 	static readonly UserRolesArray = Object.values(UserRoles);
+	static readonly TITLE_LENGTH = { MIN: 5, MAX: 100 };
+	static readonly DESCRIPTION_LENGTH = { MIN: 10, MAX: 250 };
+	static readonly CONTENT_LENGTH = { MIN: 10, MAX: 10000 };
 	static readonly TRACE: boolean = true;
-    static readonly minimalLogLevel: "DEBUG" | "INFO" | "SUCCESS" | "ERROR" = "INFO";
+	static readonly minimalLogLevel: "DEBUG" | "INFO" | "SUCCESS" | "ERROR" =
+		"INFO";
+
+	static readonly DEFAULT_PAGE = AppConfig.DEFAULT_PAGE;
+	static readonly DEFAULT_LIMIT = AppConfig.DEFAULT_LIMIT;
+	static readonly PAGE_MIN_LIMIT = AppConfig.PAGE_MIN_LIMIT;
+	static readonly PAGE_MAX_LIMIT = AppConfig.PAGE_MAX_LIMIT;
+
+
+	static readonly DocAnchors = {
+		register: "Doc",
+	}
+
 	static readonly ID = {
 		REQUIRED_MESSAGE: "L'id est obligatoire.",
 		TYPE_MESSAGE: "L'id doit être un nombre.",
@@ -71,13 +61,19 @@ export class UserConfig {
 	};
 
 	static readonly ROLE = {
-		TYPE_MESSAGE: "Le rôle doit être une chaîne de caractères.",
-		DEFAULT: UserRoles.USER,
-		get PATTERN() {
-			return new RegExp(`^(${UserConfig.UserRolesArray.join("|")})$`);
-		},
-		get PATTERN_MESSAGE() {
-			return `Le rôle doit être "${UserConfig.UserRolesArray.join('" ou "')}".`;
-		},
-	};
+		DEFAULT: "USER", // Doit correspondre au format attendu
+		PATTERN: /^(USER|ADMIN)$/, // Doit matcher avec `.toUpperCase()`
+		PATTERN_MESSAGE: "Le rôle doit être 'USER' ou 'ADMIN'.",
+	  };
 }
+
+export const UserMessages = {
+	GET_ALL: "Récupérer tous les utilisateurs",
+	REGISTER: `${DocConfig.generateWarningMessage([
+		`Cette route permet à un nouvel utilisateur de s'*inscrire*.`,
+		`Une fois inscrit, il pourra se *connecter* et accéder aux fonctionnalités protégées. _(uniquement pour les rôles *ADMIN*)_`,
+		"Le rôle par défaut est 'USER'.",
+		`Voir **exemple 2** pour un utilisateur _ADMIN_`,
+	], `[${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)}](${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)})`)
+	}`,
+};

@@ -1,8 +1,10 @@
-import { UserConfig } from "./user.config";
+
+export enum ReadmeAnchor {
+	PAGINATION_CONFIG = "pagination-config",
+}
 
 export class AppConfig {
 	// 📌 Centralisation des configurations globales
-	static readonly User = UserConfig;
 
 	// ✅ Règles globales par défaut (peuvent être écrasées dans un module spécifique)
 	static readonly DEFAULT_PAGE = 1;
@@ -14,4 +16,10 @@ export class AppConfig {
 		SUCCESS: "Opération réussie",
 		ERROR: "Une erreur est survenue",
 	};
+
+	static getReadMeUrl(anchor?: string): string {
+		const baseUrl =
+			"https://github.com/timoogo/onepoint_test_technique/blob/main/README.md";
+		return anchor ? baseUrl + "#" + anchor : baseUrl;
+	}
 }

@@ -8,7 +8,17 @@ import { ResponseHandler } from "../utils/response.handler";
 import { UserConfig } from "../config/user.config";
 import { ArticleConfig } from "../config/article.config";
 import { ArticleSchemas } from "../schemas/article.schema";
+import { ExampleGenerator } from "../utils/example.generator.utils";
+
+
+/**
+ * Routes de modification d'articles
+ * @param fastify Instance Fastify
+ */
 export async function articlePutRoutes(fastify: FastifyInstance) {
+
+
+	const reassignExamples = await ExampleGenerator.generateReassignExample();
 	const articleService = new ArticleService();
 	const userService = new UserService();
 	/**
@@ -23,6 +33,7 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 		{
 			preHandler: [isAuthenticated, isAdmin], // ✅ Vérifie l'authentification AVANT l'admin
 			schema: ArticleSchemas.UpdateArticle,
+			
 		},
 		async (request, reply) => {
 			const { id } = request.params;
@@ -103,80 +114,46 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	fastify.put<{ Body: { oldUserId: number | null; newUserId: number } }>(
+	fastify.put<{ Body: { oldUserId: number | null; newUserId: number; pagination?: { page?: number, limit?: number } } }>(
 		"/reassign",
 		{
-			preHandler: [isAuthenticated, isAdmin], // ✅ Vérifie l'authentification AVANT l'admin
+			preHandler: [isAuthenticated, isAdmin],
 			schema: ArticleSchemas.ReassignArticles,
 		},
 		async (request, reply) => {
-			const { oldUserId, newUserId } = request.body;
-
-			// Vérification des ID avant toute action
-			if (newUserId === oldUserId) {
-				return reply.status(HttpStatus.BAD_REQUEST).send({
-					status: "error",
-					message:
-						"L'ancien et le nouvel utilisateur ne peuvent pas être identiques.",
-				});
-			}
-
-			console.log("🔄 Réassignation des articles :", { oldUserId, newUserId });
-
-			// Vérification si des articles existent sans propriétaire
-			if (oldUserId === null) {
-				const count = await articleService.countUnassignedArticles();
-				if (count === 0) {
-					return reply.status(HttpStatus.NOT_FOUND).send({
-						status: "error",
-						message: "Aucun article sans propriétaire trouvé.",
-					});
-				}
-			} else {
-				// Vérifier si l'ancien utilisateur existe
-				const oldUser = await userService.getUserById(oldUserId);
-				if (!oldUser) {
-					return reply.status(HttpStatus.NOT_FOUND).send({
-						status: "error",
-						message: `Utilisateur avec l'ID ${oldUserId} introuvable.`,
-					});
-				}
-			}
-
-			// Vérifier si le nouvel utilisateur existe
-			const newUser = await userService.getUserById(newUserId);
-			if (!newUser) {
-				return reply.status(HttpStatus.NOT_FOUND).send({
-					status: "error",
-					message: `Utilisateur avec l'ID ${newUserId} introuvable.`,
-				});
-			}
-
-			// Réattribuer les articles
+			const { oldUserId, newUserId, pagination } = request.body;
+			const page = pagination?.page ?? ArticleConfig.getOrDefault("DEFAULT_PAGE", ArticleConfig.DEFAULT_PAGE);
+			const limit = pagination?.limit ?? ArticleConfig.getOrDefault("DEFAULT_LIMIT", ArticleConfig.DEFAULT_LIMIT);
+	
+			console.log("🔄 Réassignation des articles avec pagination :", { oldUserId, newUserId, page, limit });
+	
 			const reassignedArticles = await articleService.reassignArticles(
 				oldUserId ?? null,
 				newUserId,
+				page,
+				limit
 			);
-
-			// Vérifier s'il y avait des articles à réassigner
+	
 			if (reassignedArticles.count === 0) {
 				return reply.status(HttpStatus.OK).send({
 					status: "info",
 					message: "Aucun article à réattribuer.",
 					count: 0,
+					pagination: { page, limit },
+					total: reassignedArticles.total,
 				});
 			}
-
-			// Sort by id
-			reassignedArticles.articles.sort((a, b) => a.id - b.id);
-
-			// Réponse standardisée
+	
 			return reply.status(HttpStatus.OK).send({
 				status: "success",
 				message: `Articles réassignés avec succès à l'utilisateur ${newUserId}.`,
 				count: reassignedArticles.count,
+				pagination: { page, limit },
+				total: reassignedArticles.total,
 				articles: reassignedArticles.articles,
 			});
-		},
+		}
 	);
+	
+	
 }
