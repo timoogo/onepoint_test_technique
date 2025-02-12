@@ -72,10 +72,23 @@ export async function articlePostRoutes(app: FastifyInstance) {
 
         // Réponse
         ResponseHandler.success("Article créé avec succès", article);
-        return reply.status(HttpStatus.CREATED).send({
-          message: "Article créé avec succès",
-          article,
-        });
+		return reply.status(HttpStatus.CREATED).send({
+			status: "success",
+			message: {
+				state: "Ressource créée.",
+				details: "Article créé avec succès"
+			},
+			data: {
+				id: article.id,
+				title: article.title,
+				description: article.description,
+				content: article.content,
+				createdAt: article.createdAt,
+				updatedAt: article.updatedAt,
+				createdById: article.createdById,
+			}
+		});
+		
 
 			} catch (error) {
 				ResponseHandler.error("Erreur lors de la création de l'article", error);

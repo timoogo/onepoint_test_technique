@@ -35,7 +35,10 @@ export async function articleDeleteRoutes(fastify: FastifyInstance) {
 				return reply.status(HttpStatus.OK).send({
 					status: "success",
 					date: deletedArticle.updatedAt,
-					message: `Article avec l'ID ${id} supprimé avec succès.`,
+					message: {
+						state: "Article supprimé",
+						details: `Article avec l'ID ${id} supprimé avec succès.`,
+					},
 					data: deletedArticle,
 				});
 			} catch (error) {

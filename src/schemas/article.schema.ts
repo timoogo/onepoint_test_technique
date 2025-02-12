@@ -1,8 +1,12 @@
+import { Tags } from "../config/app.config";
 import { ArticleConfig, ArticleMessages } from "../config/article.config";
 import { HttpStatus } from "../config/http.config";
 import { SecurityConfig } from "../config/security.config";
+import {
+	ArticleDocRequestExamples,
+	ArticleDocResponseExamples,
+} from "../docs/article.doc.examples";
 import { ExampleGenerator } from "../utils/example.generator.utils";
-import { ArticleDocRequestExamples, ArticleDocResponseExamples } from "../docs/article.doc.examples";
 async function getReassignExample() {
 	const example = await ExampleGenerator.generateReassignExample();
 	console.log("🚀 Exemple généré pour Swagger :", example);
@@ -16,95 +20,86 @@ async function getReassignExample() {
 }
 
 export const ArticleSchemas = {
-   GetAllArticles: {
-        tags: ["Articles"],
-        description: ArticleMessages.GET_ALL,
-        security: SecurityConfig.PUBLIC_ROUTE,
+	GetAllArticles: {
+		tags: [Tags.ARTICLES],
+		description: ArticleMessages.GET_ALL,
+		security: SecurityConfig.PUBLIC_ROUTE,
 		examples: ArticleDocRequestExamples.GetAllArticles,
-        querystring: {
-            type: "object",
-            properties: {
-                page: {
-                    type: "integer",
-                    minimum: ArticleConfig.getOrDefault(
-                        "PAGE_MIN_LIMIT",
-                        ArticleConfig.PAGE_MIN_LIMIT,
-                    ),
-                    default: ArticleConfig.DEFAULT_PAGE,
-                    description: "Numéro de la page",
-                },
-                limit: {
-                    type: "integer",
-                    minimum: ArticleConfig.getOrDefault(
-                        "PAGE_MIN_LIMIT",
-                        ArticleConfig.PAGE_MIN_LIMIT,
-                    ),
-                    maximum: ArticleConfig.getOrDefault(
-                        "PAGE_MAX_LIMIT",
-                        ArticleConfig.PAGE_MAX_LIMIT,
-                    ),
-                    default: ArticleConfig.DEFAULT_LIMIT,
-                    description: "Nombre d'articles par page",
-                },
-            },
-        },
+		querystring: {
+			type: "object",
+			properties: {
+				page: {
+					type: "integer",
+					minimum: ArticleConfig.DEFAULT_PAGE,
+					default: ArticleConfig.DEFAULT_PAGE,
+					description: "Numéro de la page",
+				},
+				limit: {
+					type: "integer",
+					minimum: ArticleConfig.PAGE_MIN_LIMIT,
+					maximum: ArticleConfig.PAGE_MAX_LIMIT,
+					default: ArticleConfig.DEFAULT_LIMIT,
+					description: "Nombre d'articles par page",
+				},
+			},
+		},
 
-        response: {
-            [HttpStatus.OK]: {
-                examples: ArticleDocResponseExamples.GetAllArticles,
-                type: "object",
-                properties: {
-                    status: { type: "string" },
-                    message: {
-                        type: "object",
-                        properties: {
-                            state: { type: "string" },
-                            details: { type: "string" },
-                        },
-                    },
-                    total: { type: "integer" },
-                    page: { type: "integer" },
-                    limit: { type: "integer" },
-                    data: {
-                        type: "array",
-                        items: {
-                            type: "object",
-                            properties: {
-                                id: { type: "integer" },
-                                title: { type: "string" },
-                                description: { type: "string" },
-                                content: { type: "string" },
-                                createdAt: { type: "string", format: "date-time" },
-                                updatedAt: { type: "string", format: "date-time" },
-                                createdById: { type: ["integer", "null"] },
-                                createdBy: {
-                                    type: ["object", "null"],
-                                    nullable: true,
-                                    properties: {
-                                        id: { type: "integer" },
-                                        name: { type: "string" },
-                                        email: { type: "string" },
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-            [HttpStatus.INTERNAL_SERVER_ERROR]: {
-                description: "Erreur interne du serveur",
-                examples: ArticleDocResponseExamples.GetAllArticles,
-                type: "object",
-                properties: {
-                    status: { type: "string" },
-                    message: { type: "string" },
-                },
-            },
-        },
-    },
+		response: {
+			[HttpStatus.OK]: {
+				examples: ArticleDocResponseExamples.GetAllArticles,
+				type: "object",
+				properties: {
+					status: { type: "string" },
+					message: {
+						type: "object",
+						properties: {
+							state: { type: "string" },
+							details: { type: "string" },
+						},
+					},
+					total: { type: "integer" },
+					page: { type: "integer" },
+					limit: { type: "integer" },
+					data: {
+						type: "array",
+						items: {
+							type: "object",
+							properties: {
+								id: { type: "integer" },
+								title: { type: "string" },
+								description: { type: "string" },
+								content: { type: "string" },
+								createdAt: { type: "string", format: "date-time" },
+								updatedAt: { type: "string", format: "date-time" },
+								createdById: { type: ["integer", "null"] },
+								createdBy: {
+									type: ["object", "null"],
+									nullable: true,
+									properties: {
+										id: { type: "integer" },
+										name: { type: "string" },
+										email: { type: "string" },
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			[HttpStatus.INTERNAL_SERVER_ERROR]: {
+				description: "Erreur interne du serveur",
+				examples: ArticleDocResponseExamples.GetAllArticles,
+				type: "object",
+				properties: {
+					status: { type: "string" },
+					message: { type: "string" },
+				},
+			},
+		},
+	},
 
 	GetArticleById: {
-		tags: ["Articles"],
+		tags: [Tags.ARTICLES],
 		description: "Récupérer un article par son ID",
 		security: SecurityConfig.PUBLIC_ROUTE,
 		params: {
@@ -177,7 +172,7 @@ export const ArticleSchemas = {
 	CreateArticle: {
 		summary: "Créer un nouvel article",
 		description: "Créer un nouvel article (admin uniquement)",
-		tags: ["Articles"],
+		tags: [Tags.ADMIN],
 		security: SecurityConfig.SECURED_ROUTE,
 		body: {
 			type: "object",
@@ -209,29 +204,80 @@ export const ArticleSchemas = {
 				description: "Article créé avec succès",
 				type: "object",
 				properties: {
-					message: { type: "string" },
-					article: {
+					status: { type: "string", example: "success" },
+					message: {
 						type: "object",
 						properties: {
-							id: { type: "number" },
-							title: { type: "string" },
-							description: { type: "string" },
-							content: { type: "string" },
-							createdAt: { type: "string", format: "date-time" },
-							createdBy: { type: "number" },
+							state: { type: "string", example: "Ressource créée." },
+							details: { type: "string", example: "Article créé avec succès" },
+						},
+					},
+					data: {
+						type: "object",
+						properties: {
+							id: { type: "number", example: 50 },
+							title: { type: "string", example: "Titre de l'article" },
+							description: {
+								type: "string",
+								example: "Description de l'article",
+							},
+							content: { type: "string", example: "Contenu de l'article" },
+							createdAt: {
+								type: "string",
+								format: "date-time",
+								example: "2025-02-12T10:00:00.000Z",
+							},
+							updatedAt: {
+								type: "string",
+								format: "date-time",
+								example: "2025-02-12T10:00:00.000Z",
+							},
+							createdById: { type: "number", example: 44 },
+							createdBy: {
+								type: "object",
+								properties: {
+									id: { type: "number", example: 44 },
+									name: { type: "string", example: "John Doe" },
+									email: { type: "string", example: "johndoe@example.com" },
+								},
+							},
 						},
 					},
 				},
 			},
-			[HttpStatus.BAD_REQUEST]: { description: "Erreur de validation" },
-			[HttpStatus.UNAUTHORIZED]: { description: "Non autorisé" },
-			[HttpStatus.INTERNAL_SERVER_ERROR]: { description: "Erreur serveur" },
+			[HttpStatus.BAD_REQUEST]: {
+				description: "Erreur de validation",
+				type: "object",
+				properties: {
+					status: { type: "string", example: "error" },
+					message: { type: "string", example: "Requête invalide." },
+				},
+			},
+			[HttpStatus.UNAUTHORIZED]: {
+				description: "Non autorisé",
+				type: "object",
+				properties: {
+					status: { type: "string", example: "error" },
+					message: { type: "string", example: "Accès refusé." },
+				},
+			},
+			[HttpStatus.INTERNAL_SERVER_ERROR]: {
+				description: "Erreur serveur",
+				type: "object",
+				properties: {
+					status: { type: "string", example: "error" },
+					message: {
+						type: "string",
+						example: "Une erreur interne est survenue.",
+					},
+				},
+			},
 		},
 	},
 	UpdateArticle: {
 		summary: "Modifier un article",
 		description: "Modifier un article par son ID (admin uniquement)",
-		tags: ["Articles"],
+		tags: [Tags.ADMIN],
 		security: SecurityConfig.SECURED_ROUTE,
 		params: {
 			type: "object",
@@ -280,7 +326,7 @@ export const ArticleSchemas = {
 	DeleteArticle: {
 		summary: "Supprimer un article",
 		description: ArticleMessages.DELETE,
-		tags: ["Articles"],
+		tags: [Tags.ADMIN],
 		security: SecurityConfig.SECURED_ROUTE,
 		params: {
 			type: "object",
@@ -295,45 +341,62 @@ export const ArticleSchemas = {
 				type: "object",
 				properties: {
 					status: { type: "string" },
-					message: { type: "string" },
+					message: {
+						type: "object",
+						properties: {
+							state: { type: "string" },
+							details: { type: "string" },
+						},
+					},
 					data: {
 						type: "object",
 						properties: {
-							id: { type: "number" },
-							title: { type: "string" },
-							content: { type: "string" },
-							createdAt: { type: "string", format: "date-time" },
-							updatedAt: { type: "string", format: "date-time" },
+							id: { type: "number", example: 42 },
+							name: { type: "string", example: "John Doe" },
+							email: { type: "string", example: "johndoe@example.com" },
+							role: { type: "string", example: "user" },
+							createdAt: {
+								type: "string",
+								format: "date-time",
+								example: "2025-02-12T14:51:31.213Z",
+							},
+							updatedAt: {
+								type: "string",
+								format: "date-time",
+								example: "2025-02-12T14:51:31.213Z",
+							},
 						},
 					},
 				},
-				// examples: ArticleDocExamples.Delete, // Exemple de réponse
+				// examples: UserDocExamples.Delete, // Exemple de réponse
 			},
 			[HttpStatus.NOT_FOUND]: {
-				description: "Article introuvable",
+				description: "Utilisateur introuvable",
 				type: "object",
 				properties: {
-					status: { type: "string" },
-					message: { type: "string" },
+					status: { type: "string", example: "error" },
+					message: {
+						type: "string",
+						example: "Utilisateur non trouvé avec l'ID donné.",
+					},
 				},
-				// examples: ArticleDocResponseExamples.Delete,
+				// examples: UserDocResponseExamples.Delete,
 			},
 		},
 	},
-	
+
 	ReassignArticles: {
 		summary: "Réattribuer les articles",
 		description: ArticleMessages.REASSIGN,
-		tags: ["Articles"],
+		tags: [Tags.ARTICLES],
 		security: SecurityConfig.SECURED_ROUTE,
 		body: {
 			type: "object",
 			required: ["newUserId"],
 			properties: {
-
 				oldUserId: {
-					type: ["number", "null"], // Permet d'accepter null et un nombre
-					nullable: true, // Indique que la valeur peut être absente
+					type: "number",
+					nullable: true,
 					description: "ID de l'ancien utilisateur (null si aucun)",
 				},
 				newUserId: {
@@ -341,13 +404,15 @@ export const ArticleSchemas = {
 					description: "ID du nouvel utilisateur",
 				},
 
-				page: { // a grouper avec limit
+				page: {
+					// a grouper avec limit
 					type: "integer",
 					description: "Numéro de la page",
 					minimum: ArticleConfig.PAGE_MIN_LIMIT,
 					default: ArticleConfig.DEFAULT_PAGE,
 				},
-				limit: { // a grouper avec page
+				limit: {
+					// a grouper avec page
 					type: "integer",
 					description: "Nombre d'articles par page",
 					minimum: ArticleConfig.PAGE_MIN_LIMIT,
@@ -368,7 +433,7 @@ export const ArticleSchemas = {
 					page: { type: "number" },
 					limit: { type: "number" },
 					total: { type: "number" },
-					articles: { 
+					articles: {
 						type: "array",
 						items: {
 							type: "object",
@@ -386,6 +451,5 @@ export const ArticleSchemas = {
 				// examples: ArticleDocExamples.Reassign,
 			},
 		},
-		
 	},
 };

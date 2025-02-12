@@ -16,11 +16,13 @@ export class UserConfig extends ConfigBase {
 	static readonly minimalLogLevel: "DEBUG" | "INFO" | "SUCCESS" | "ERROR" =
 		"INFO";
 
-	static readonly DEFAULT_PAGE = AppConfig.DEFAULT_PAGE;
-	static readonly DEFAULT_LIMIT = AppConfig.DEFAULT_LIMIT;
-	static readonly PAGE_MIN_LIMIT = AppConfig.PAGE_MIN_LIMIT;
-	static readonly PAGE_MAX_LIMIT = AppConfig.PAGE_MAX_LIMIT;
-
+		static readonly PaginationConfig = {
+			DEFAULT_PAGE: AppConfig.PaginationConfig.DEFAULT_PAGE,
+			DEFAULT_LIMIT: AppConfig.PaginationConfig.DEFAULT_LIMIT,
+			PAGE_MIN_LIMIT: AppConfig.PaginationConfig.PAGE_MIN_LIMIT,
+			PAGE_MAX_LIMIT: AppConfig.PaginationConfig.PAGE_MAX_LIMIT,
+		}
+		
 
 	static readonly DocAnchors = {
 		register: "Doc",

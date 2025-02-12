@@ -1,3 +1,4 @@
+import { Tags } from "../config/app.config";
 import { HttpStatus } from "../config/http.config";
 import { SecurityConfig } from "../config/security.config";
 import { UserConfig, UserMessages } from "../config/user.config";
@@ -15,23 +16,23 @@ export const UserSchemas = {
                 page: {
                     type: "integer",
                     minimum: UserConfig.getOrDefault(
-                        "PAGE_MIN_LIMIT",
-                        UserConfig.PAGE_MIN_LIMIT,
+                        "PaginationConfig",
+                        UserConfig.PaginationConfig.PAGE_MIN_LIMIT,
                     ),
-                    default: UserConfig.DEFAULT_PAGE,
+                    default: UserConfig.PaginationConfig.DEFAULT_PAGE,
                     description: "Numéro de la page",
                 },
                 limit: {
                     type: "integer",
                     minimum: UserConfig.getOrDefault(
-                        "PAGE_MIN_LIMIT",
-                        UserConfig.PAGE_MIN_LIMIT,
+                        "PaginationConfig",
+                        UserConfig.PaginationConfig.PAGE_MIN_LIMIT,
                     ),
                     maximum: UserConfig.getOrDefault(
-                        "PAGE_MAX_LIMIT",
-                        UserConfig.PAGE_MAX_LIMIT,
+                        "PaginationConfig",
+                        UserConfig.PaginationConfig.PAGE_MAX_LIMIT,
                     ),
-                    default: UserConfig.DEFAULT_LIMIT,
+                    default: UserConfig.PaginationConfig.DEFAULT_LIMIT,
                     description: "Nombre d'utilisateurs par page",
                 },
             },
@@ -41,7 +42,12 @@ export const UserSchemas = {
                 type: "object",
                 properties: {
                     status: { type: "string" },
-                    message: { type: "string" },
+                    message: { type: "object",
+                        properties: {
+                            state: { type: "string" },
+                            details: { type: "string" },
+                        },
+                    },
                     total: { type: "integer" },
                     page: { type: "integer" },
                     limit: { type: "integer" },
@@ -177,10 +183,10 @@ export const UserSchemas = {
 	},
 
 	DeleteUser: {
-		tags: ["Users"],
+		tags: [Tags.ADMIN],
 		summary: "Supprimer un utilisateur",
 		description: "Supprime un utilisateur spécifique à partir de son ID.",
-		security: [{ bearerAuth: [] }],
+		security: SecurityConfig.SECURED_ROUTE,
 		params: {
 			type: "object",
 			properties: {
@@ -188,23 +194,38 @@ export const UserSchemas = {
 			},
 			required: ["id"],
 		},
-		response: {
-			[HttpStatus.OK]: {
-				type: "object",
-				properties: {
-					message: {
-						type: "string",
-						description: "Utilisateur supprimé avec succès",
-					},
-				},
-			},
-			[HttpStatus.NOT_FOUND]: {
-				description: "Utilisateur introuvable",
-				type: "object",
-				properties: {
-					message: { type: "string", description: "Utilisateur non trouvé" },
-				},
-			},
-		},
+        response: {
+            [HttpStatus.OK]: {
+                description: "Utilisateur supprimé avec succès",
+                type: "object",
+                properties: {
+                    status: { type: "string", example: "success" },
+                    message: { type: "string", example: "Utilisateur supprimé avec succès." },
+                    data: {
+                        type: "object",
+                        properties: {
+                            id: { type: "number", example: 42 },
+                            name: { type: "string", example: "John Doe" },
+                            email: { type: "string", example: "johndoe@example.com" },
+                            role: { type: "string", example: "user" },
+                            createdAt: { type: "string", format: "date-time", example: "2025-02-12T14:51:31.213Z" },
+                            updatedAt: { type: "string", format: "date-time", example: "2025-02-12T14:51:31.213Z" },
+                        },
+                    },
+                },
+                // examples: UserDocExamples.Delete, // Exemple de réponse
+            },
+            [HttpStatus.NOT_FOUND]: {
+                description: "Utilisateur introuvable",
+                type: "object",
+                properties: {
+                    status: { type: "string", example: "error" },
+                    message: { type: "string", example: "Utilisateur non trouvé avec l'ID donné." },
+                },
+                // examples: UserDocResponseExamples.Delete,
+            },
+        }
+        
+        
 	},
 };

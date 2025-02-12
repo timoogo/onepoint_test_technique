@@ -121,9 +121,10 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 			schema: ArticleSchemas.ReassignArticles,
 		},
 		async (request, reply) => {
+			console.log("Requête reçue :", request.body); // 🔍 DEBUG
 			const { oldUserId, newUserId, pagination } = request.body;
-			const page = pagination?.page ?? ArticleConfig.getOrDefault("DEFAULT_PAGE", ArticleConfig.DEFAULT_PAGE);
-			const limit = pagination?.limit ?? ArticleConfig.getOrDefault("DEFAULT_LIMIT", ArticleConfig.DEFAULT_LIMIT);
+			const page = pagination?.page ?? ArticleConfig.DEFAULT_PAGE;
+			const limit = pagination?.limit ?? ArticleConfig.DEFAULT_LIMIT;
 	
 			console.log("🔄 Réassignation des articles avec pagination :", { oldUserId, newUserId, page, limit });
 	

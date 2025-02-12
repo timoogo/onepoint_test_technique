@@ -75,8 +75,18 @@ export class ArticleService {
 				content,
 				createdById,
 			},
+			include: {
+				createdBy: {
+					select: {
+						id: true,
+						name: true,
+						email: true
+					}
+				}
+			}
 		});
 	}
+	
 
 	/**
 	 * Mettre à jour un article par son ID

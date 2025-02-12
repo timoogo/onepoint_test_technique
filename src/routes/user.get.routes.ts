@@ -19,6 +19,19 @@ export async function userGetRoutes(fastify: FastifyInstance) {
 			schema: UserSchemas.GetAllUsers,
 		},
 		async (request, reply) => {
+
+
+			console.log("🔍 Requête reçue avec les paramètres suivants", {
+				query: request.query,
+				user: request.user,
+				body: request.body,
+				headers: request.headers,
+				raw: request.raw,
+				server: request.server,
+				hostname: request.hostname,
+				ip: request.ip,
+				ips: request.ips,
+			});
 			const page = request.query.page ?? UserConfig.DEFAULT_PAGE;
 			const limit = Math.min(request.query.limit ?? UserConfig.DEFAULT_LIMIT, UserConfig.PAGE_MAX_LIMIT);
 			const offset = (page - 1) * limit;

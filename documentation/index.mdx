@@ -1,0 +1,244 @@
+# Documentation
+
+## Introduction
+
+## Installation
+
+### Articles
+
+Les articles suivent ce schéma Prisma :
+
+```prisma
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById Int?
+  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+}
+```
+
+| Nom         | Type     | Description                                       |
+| ----------- | -------- | ------------------------------------------------- |
+| id          | Int      | Identifiant unique de l'article                   |
+| title       | String   | Titre de l'article                                |
+| description | String   | Description de l'article                          |
+| content     | String   | Contenu de l'article                              |
+| createdAt   | DateTime | Date de création de l'article                     |
+| updatedAt   | DateTime | Date de mise à jour de l'article                  |
+| createdById | Int      | Identifiant de l'utilisateur qui a créé l'article |
+| createdBy   | User     | Utilisateur qui a créé l'article                  |
+
+#### Routes
+
+| Route                | Méthode  | Description                              | Authentifié ? | Admin ? |
+| -------------------- | -------- | ---------------------------------------- | ------------- | ------- |
+| `/articles`          | `GET`    | Récupérer tous les articles              | Non           | Non     |
+| `/articles/:id`      | `GET`    | Récupérer un article par son identifiant | Non           | Non     |
+| `/articles`          | `POST`   | Créer un nouvel article                  | Oui           | Non     |
+| `/articles/:id`      | `PUT`    | Modifier un article existant             | Oui           | Oui     |
+| `/articles/:id`      | `DELETE` | Supprimer un article existant            | Oui           | Oui     |
+| `/articles/reassign` | `POST`   | Réattribuer les articles                 | Oui           | Oui     |
+
+#### Exemple de requête GET (`GET /articles`)
+<details>
+<summary>Récupérer tous les articles</summary>
+
+Sur swagger ou par curl
+```bash
+curl -X 'GET' \
+  'http://localhost:3000/articles/' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ${token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "string",
+  "description": "stringstri",
+  "content": "stringstri"
+}'
+
+<details>
+<summary>Réponse</summary>
+
+Partons du principe que vous avez 2 articles dans votre base de données.
+
+```json
+{
+  "status": "success",
+  "message": {
+    "state": "Ressources trouvées.",
+    "details": "Articles récupérés avec succès"
+  },
+  "total": 2,
+  "page": 1,
+  "limit": 10,
+  "data": [
+    {
+      "id": 60,
+      "title": "Titre de l'article",
+      "description": "Description de l'article",
+      "content": "Contenu de l'article",
+      "createdAt": "2025-02-10T23:47:22.533Z",
+      "updatedAt": "2025-02-11T20:24:36.498Z",
+      "createdById": 44,
+      "createdBy": {
+        "id": 44,
+        "name": "John Doe",
+        "email": "johndoe@example.com"
+      }
+    },
+    {
+      "id": 59,
+      "title": "Titre de l'article",
+      "description": "Description de l'article",
+      "content": "Contenu de l'article",
+      "createdAt": "2025-02-10T23:47:22.336Z",
+      "updatedAt": "2025-02-11T20:24:36.498Z",
+      "createdById": 44,
+      "createdBy": {
+        "id": 44,
+        "name": "John Doe",
+        "email": "johndoe@example.com"
+      }
+    },
+   
+
+  ]
+}
+```
+</details>
+</details>
+
+#### Exemple de requête GET par son identifiant (`GET /articles/:id`)
+<details open>
+<summary>Récupérer un article par son identifiant</summary>
+
+Sur swagger ou par curl
+```bash
+curl -X 'GET' \
+  'http://localhost:3000/articles/60' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ${token}' \
+  -H 'Content-Type: application/json' \
+```
+
+<details>
+
+<summary>Réponse</summary>
+
+```json
+{
+  "status": "success",
+  "message": {
+    "state": "Ressource trouvée.",
+    "details": "Article récupéré avec succès"
+  },
+  "data": {
+    "id": 60,
+    "title": "Titre de l'article",
+    "description": "Description de l'article",
+    "content": "Contenu de l'article",
+    "createdAt": "2025-02-10T23:47:22.533Z",
+    "updatedAt": "2025-02-11T20:24:36.498Z",
+    "createdById": 44,
+    "createdBy": {
+      "id": 44,
+      "name": "John Doe",
+      "email": "johndoe@example.com"
+    }
+  }
+}
+
+```
+</details>
+</details>
+
+#### Exemple de requête POST (`POST /articles`)
+<details open>
+<summary>Créer un nouvel article</summary>
+
+Sur swagger ou par curl
+```bash
+curl -X 'POST' \
+  'http://localhost:3000/articles/' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ${token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "string",
+  "description": "stringstri",
+  "content": "stringstri"
+}'
+```
+
+<details>
+<summary>Réponse</summary>
+
+```json
+{
+  "status": "success",
+  "message": {
+    "state": "Ressource créée.",
+    "details": "Article créé avec succès"
+  },
+  "data": {
+    "id": 64,
+    "title": "string",
+    "description": "stringstri",
+    "content": "stringstri",
+    "createdAt": "2025-02-12T18:17:15.880Z",
+    "updatedAt": "2025-02-12T18:17:15.880Z",
+    "createdById": 46
+  }
+}
+
+</details>
+</details>
+
+#### Exemple de requête PUT (`PUT /articles/:id`)
+<details open>
+<summary>Modifier un article existant</summary>
+
+Sur swagger ou par curl
+
+```bash
+curl -X 'PUT' \
+  'http://localhost:3000/articles/64' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer ${token}' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "title": "Une modification du titre",
+  "description": "inchangée",
+  "content": "Du cccontenu"
+}'
+```
+
+<details>
+<summary>Réponse</summary>
+
+```json
+{
+  "status": "success",
+  "message": "Article avec l'ID 64 modifié avec succès.",
+  "data": {
+    "id": 64,
+    "title": "Une modification du titre",
+    "description": "inchangée",
+    "content": "Du cccontenu",
+    "createdAt": "2025-02-12T18:17:15.880Z",
+    "updatedAt": "2025-02-12T18:20:22.438Z",
+    "createdById": 46
+  }
+}
+
+</details>
+</details>
+
+#### Exemple de requête DELETE (`DELETE /articles/:id`)
+<details open>
+<summary>Supprimer un article existant</summary>
+

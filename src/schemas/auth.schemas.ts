@@ -1,9 +1,9 @@
 import { HttpStatus } from "../config/http.config";
 import { AuthDocExamples } from "../docs/auth.doc.examples";
-
+import { Tags } from "../config/app.config";
 export const AuthSchemas = {
     Login: {
-        tags: ["Auth"],
+        tags: [Tags.AUTH],
         description: "Connexion de l'utilisateur",
         body: {
             type: "object",
@@ -26,7 +26,7 @@ export const AuthSchemas = {
         },
     },
     Logout: {
-        tags: ["Auth"],
+        tags: [Tags.AUTH, Tags.USERS],
         description: "Déconnexion de l'utilisateur",
         response: {
             [HttpStatus.OK]: {

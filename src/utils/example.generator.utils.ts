@@ -48,8 +48,8 @@ const majuscules = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             title: `Titre de l'article ${randomNum}`,
             description: `Description de l'article ${randomNum}`,
             content: `Contenu de l'article ${randomNum}`,
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         };
     }
     static generateMultipleArticleExamples(count = 3) {

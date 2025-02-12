@@ -52,8 +52,8 @@ export class UserController {
 	 * @param id - ID de l'utilisateur à supprimer
 	 * @returns Promise<void>
 	 */
-	async deleteUserById(id: number): Promise<void> {
+	async deleteUserById(id: number): Promise<User | null> {
 		console.log("Controller@deleteUserById", id);
-		await this.userService.deleteUserById(id);
+		return await this.userService.deleteUserById(id);
 	}
 }

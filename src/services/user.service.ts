@@ -95,16 +95,20 @@ export class UserService {
 
 	async deleteUserById(id: number): Promise<User | null> {
 		console.log("Service@deleteUserById", id);
+	
+		const existingUser = await prisma.user.findUnique({ where: { id } });
+		if (!existingUser) {
+			return null; // ✅ Retourne null si l'utilisateur n'existe pas
+		}
+	
 		await prisma.user.update({
 			where: { id },
-			data: {
-				updatedAt: new Date(),
-			},
+			data: { updatedAt: new Date() },
 		});
-		return await prisma.user.delete({
-			where: { id },
-		});
+	
+		return await prisma.user.delete({ where: { id } }); // ✅ Retourne l'utilisateur supprimé
 	}
+	
 
 	async countUsers(): Promise<number> {
 		return await prisma.user.count();

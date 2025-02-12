@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { redisService } from "..";
 import { HttpMessages, HttpStatus } from "../config/http.config";
 import { ResponseHandler } from "../utils/response.handler";
+import { redisService } from "..";
+
 
 export const isAuthenticated = async (
 	request: FastifyRequest,

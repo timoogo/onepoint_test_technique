@@ -35,30 +35,56 @@ export const ArticleDocRequestExamples = {
             },
         },
     ],
+    CreateArticle: [
+        {
+            summary: "Requête valide",
+            value: {
+                title: "Titre de l'article",
+				description: "Description de l'article",
+				content: "Contenu de l'article",
+            },
+        },
+        {
+            summary: "Requête invalide",
+            value: {
+                title: "Titre de l'article",
+            },
+        },
+    ],
+
 };
 
 
 export const ArticleDocResponseExamples = {
 	GetAllArticles: [
 		{
-			summary: "Succès",
-			value: {
-				status: "success",
-				message: "Liste des articles récupérée avec succès.",
-				count: 3,
-				page: 1,
-				limit: 10,
-				total: 30,
-				articles: ExampleGenerator.generateMultipleArticleExamples(3),
+			status: "success",
+			message: {
+				state: "Ressources trouvées",
+				details: "Articles récupérée avec succès.",
 			},
+			total: 30,
+			page: 1,
+			limit: 10,
+			data: ExampleGenerator.generateMultipleArticleExamples(3),
 		},
+	
 		{
-			summary: "Erreur - Paramètres invalides",
-			value: {
-				status: "error",
-				message:
-					"Paramètres invalides : page doit être un entier positif, limit doit être un nombre supérieur à 0.",
-			},
+			status: "error",
+			message:
+				"Paramètres invalides : page doit être un entier positif, limit doit être un nombre supérieur à 0.",
+		},
+	],
+	CreateArticle_Success: [
+		{
+			status: "success",
+			message: "Article créé avec succès.",
+		},
+	],
+	CreateArticle_Error: [
+		{
+			status: "error",
+			message: "Paramètres invalides : title doit contenir entre 5 et 100 caractères.",
 		},
 	],
 };
