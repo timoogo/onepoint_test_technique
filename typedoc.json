@@ -1,0 +1,31 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "out": "docs",
+  "name": "Documentation Technique Onepoint",
+  "theme": "default",
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Config",
+    "Controllers",
+    "DTOs",
+    "Exceptions",
+    "Middlewares",
+    "Models",
+    "Routes",
+    "Schemas",
+    "Services",
+    "Types",
+    "Utils"
+  ],
+  "readme": "none",
+  "plugin": ["typedoc-plugin-markdown"],
+  "hideBreadcrumbs": false,
+  "validation": {
+    "invalidLink": true,
+    "notExported": false
+  }
+}

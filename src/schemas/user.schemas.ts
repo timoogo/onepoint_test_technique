@@ -19,10 +19,7 @@ export const UserSchemas = {
                         "PaginationConfig",
                         UserConfig.PaginationConfig.PAGE_MIN_LIMIT,
                     ),
-<<<<<<< HEAD
                     default: UserConfig.PaginationConfig.DEFAULT_PAGE,
-=======
->>>>>>> c6183d8 (Refacto index.ts)
                     description: "Numéro de la page",
                 },
                 limit: {
