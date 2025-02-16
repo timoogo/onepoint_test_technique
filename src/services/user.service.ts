@@ -19,27 +19,26 @@ export class UserService {
 		email: string,
 		password: string,
 		role: string = "user",
-	  ) {
+	) {
 		const existingUser = await prisma.user.findUnique({
 			where: { email },
 		});
 		if (existingUser) {
 			throw new Error("Cet email est déjà utilisé.");
 		}
-	  
+
 		// Hachage du mot de passe
 		const hashedPassword = await this.hashPassword(password);
-	  
+
 		return await prisma.user.create({
-		  data: {
-			email,
-			name,
-			password: hashedPassword,
-			role: role || this.getDefaultRole(),
-		  },
+			data: {
+				email,
+				name,
+				password: hashedPassword,
+				role: role || this.getDefaultRole(),
+			},
 		});
-	  }
-	  
+	}
 
 	/**
 	 * Hacher un mot de passe avec bcrypt
@@ -69,46 +68,42 @@ export class UserService {
 	}
 
 	async getUserById(id: number): Promise<Omit<User, "password"> | null> {
-        const user = await prisma.user.findUnique({
-            where: { id },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                role: true,
-                createdAt: true,
-                updatedAt: true,
-            },
-        });
+		const user = await prisma.user.findUnique({
+			where: { id },
+			select: {
+				id: true,
+				email: true,
+				name: true,
+				role: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
 
-        if (!user) {
-            return null;
-        }
+		if (!user) {
+			return null;
+		}
 
-        return user;
-    }
-	
+		return user;
+	}
 
 	private getDefaultRole(): string {
 		return "user";
 	}
 
 	async deleteUserById(id: number): Promise<User | null> {
-		console.log("Service@deleteUserById", id);
-	
 		const existingUser = await prisma.user.findUnique({ where: { id } });
 		if (!existingUser) {
 			return null; // ✅ Retourne null si l'utilisateur n'existe pas
 		}
-	
+
 		await prisma.user.update({
 			where: { id },
 			data: { updatedAt: new Date() },
 		});
-	
+
 		return await prisma.user.delete({ where: { id } }); // ✅ Retourne l'utilisateur supprimé
 	}
-	
 
 	async countUsers(): Promise<number> {
 		return await prisma.user.count();

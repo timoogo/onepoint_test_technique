@@ -2,8 +2,8 @@ import { PrismaClient } from "@prisma/client";
 
 /**
  * @class PrismaService
- * @description Service Singleton permettant de gérer une unique instance de PrismaClient
- * afin d'éviter les connexions multiples à la base de données.
+ * @description Service Singleton permettant de gérer une unique instance de PrismaClient,
+ * même avec Nodemon (via globalThis).
  */
 export class PrismaService {
 	private static instance: PrismaService;
@@ -12,8 +12,7 @@ export class PrismaService {
 	/**
 	 * @private
 	 * @constructor
-	 * @description Constructeur privé pour empêcher l'instanciation directe de la classe.
-	 * Initialise PrismaClient.
+	 * @description Constructeur privé pour empêcher l'instanciation directe.
 	 */
 	private constructor() {
 		this.prisma = new PrismaClient();
@@ -44,10 +43,21 @@ export class PrismaService {
 	/**
 	 * @method disconnect
 	 * @description Ferme la connexion à la base de données Prisma.
-	 * À appeler lors de l'arrêt de l'application pour éviter les fuites de connexion.
-	 * @returns {Promise<void>}
 	 */
 	public async disconnect(): Promise<void> {
 		await this.prisma.$disconnect();
 	}
+}
+
+/**
+ * Utilise `globalThis` pour éviter les multiples instances
+ * en mode développement (utile avec `nodemon`).
+ */
+const prismaGlobal = globalThis as unknown as { prismaService?: PrismaService };
+
+export const prismaService =
+	prismaGlobal.prismaService ?? PrismaService.getInstance();
+
+if (process.env.NODE_ENV !== "production") {
+	prismaGlobal.prismaService = prismaService;
 }

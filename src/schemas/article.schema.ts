@@ -6,18 +6,6 @@ import {
 	ArticleDocRequestExamples,
 	ArticleDocResponseExamples,
 } from "../docs/article.doc.examples";
-import { ExampleGenerator } from "../utils/example.generator.utils";
-async function getReassignExample() {
-	const example = await ExampleGenerator.generateReassignExample();
-	console.log("🚀 Exemple généré pour Swagger :", example);
-
-	return [
-		{
-			summary: "Exemple de réattribution d'article",
-			value: example,
-		},
-	];
-}
 
 export const ArticleSchemas = {
 	GetAllArticles: {

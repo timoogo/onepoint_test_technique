@@ -53,7 +53,6 @@ export class UserController {
 	 * @returns Promise<void>
 	 */
 	async deleteUserById(id: number): Promise<User | null> {
-		console.log("Controller@deleteUserById", id);
 		return await this.userService.deleteUserById(id);
 	}
 }

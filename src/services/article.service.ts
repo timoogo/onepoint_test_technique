@@ -40,8 +40,8 @@ export class ArticleService {
 				createdBy: article.createdBy ?? null,
 			}));
 		} catch (error) {
-			console.error("❌ Erreur lors de la récupération des articles :", error);
-			throw new Error("Impossible de récupérer les articles.");
+			console.error("Error fetching articles :", error);
+			throw new Error("Error fetching articles");
 		}
 	}
 
@@ -95,7 +95,7 @@ export class ArticleService {
 		id: number,
 		data: { title?: string; description?: string; content?: string },
 	) {
-		console.log("🔍 Mise à jour de l'article :", id, data);
+		console.log("Update article :", id, data);
 		return prisma.article.update({
 			where: { id },
 			data,
@@ -176,10 +176,10 @@ export class ArticleService {
 			return { articles, total }; // ✅ Retourne un objet `{ articles, total }`
 		} catch (error) {
 			console.error(
-				"❌ Erreur lors de la récupération des articles paginés :",
+				"Error fetching paginated articles :",
 				error,
 			);
-			throw new Error("Erreur interne du serveur");
+			throw new Error("Internal server error");
 		}
 	}
 }

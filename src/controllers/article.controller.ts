@@ -25,7 +25,6 @@ export class ArticleController {
 	 * @returns L'article trouvé
 	 */
 	async getArticleById(id: number) {
-		console.log("controller [ID] :", id);
 		return await this.articleService.getArticleById(id);
 	}
 

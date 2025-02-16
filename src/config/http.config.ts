@@ -9,20 +9,20 @@ export const HttpStatus = {
   } as const;
   
   export const HttpMessages = {
-    SUCCESS: "Requête réussie.",
-    CREATED: "Ressource créée avec succès.",
-    BAD_REQUEST: "Requête invalide.",
-    UNAUTHORIZED: "Accès non autorisé.",
-    FORBIDDEN: "Accès interdit.",
-    NOT_FOUND: "Ressource non trouvée.",
-    INTERNAL_SERVER_ERROR: "Erreur interne du serveur.",
-    TOKEN_INVALID: "Token invalide ou expiré.",
-    TOKEN_MISSING: "Token manquant",
-    TOKEN_BLACKLISTED: "Token révoqué",
-    NO_RESOURCES_FOUND: "Aucune ressource trouvée.",
-    RESOURCE_NOT_FOUND: "Ressource non trouvée.",
-    RESOURCES_NOT_FOUND: "Ressources non trouvées.",
-    RESOURCES_FOUND: "Ressources trouvées.",
+    SUCCESS: "Request successful.",
+    CREATED: "Resource created successfully.",
+    BAD_REQUEST: "Invalid request.",
+    UNAUTHORIZED: "Unauthorized access.",
+    FORBIDDEN: "Access denied.",
+    NOT_FOUND: "Resource not found.",
+    INTERNAL_SERVER_ERROR: "Internal server error.",
+    TOKEN_INVALID: "Invalid or expired token.",
+    TOKEN_MISSING: "Token missing",
+    TOKEN_BLACKLISTED: "Token revoked",
+    NO_RESOURCES_FOUND: "No resources found.",
+    RESOURCE_NOT_FOUND: "Resource not found.",
+    RESOURCES_NOT_FOUND: "Resources not found.",
+    RESOURCES_FOUND: "Resources found.",
   };
 
   

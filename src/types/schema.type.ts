@@ -7,12 +7,12 @@ export type SchemaProperty = {
 	description?: string;
 	example?: string | number;
 	examples?: (string | number | object)[];
-	properties?: { [key: string]: SchemaProperty }; // ✅ Permet l'imbrication des objets
+	properties?: { [key: string]: SchemaProperty }; 
 };
 
 export type Schema = {
 	type: string;
 	required?: string[];
-	properties: { [key: string]: SchemaProperty }; // ✅ Corrige l'erreur des objets imbriqués
+	properties: { [key: string]: SchemaProperty }; 
 	examples?: (string | number | object)[];
 };

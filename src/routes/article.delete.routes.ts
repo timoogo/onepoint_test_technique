@@ -28,7 +28,7 @@ export async function articleDeleteRoutes(fastify: FastifyInstance) {
 				if (!deletedArticle) {
 					return reply.status(HttpStatus.NOT_FOUND).send({
 						status: "error",
-						message: `Article avec l'ID ${id} introuvable.`,
+						message: `Article with ID ${id} not found.`,
 					});
 				}
 
@@ -36,20 +36,20 @@ export async function articleDeleteRoutes(fastify: FastifyInstance) {
 					status: "success",
 					date: deletedArticle.updatedAt,
 					message: {
-						state: "Article supprimé",
-						details: `Article avec l'ID ${id} supprimé avec succès.`,
+						state: "Article deleted",
+						details: `Article with ID ${id} deleted successfully.`,
 					},
 					data: deletedArticle,
 				});
 			} catch (error) {
 				ResponseHandler.error(
-					"Erreur lors de la suppression de l'Article",
+					"Error deleting the article",
 					error,
 					request
 				);
 				return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
 					status: "error",
-					message: "Erreur interne du serveur",
+					message: "Internal server error",
 				});
 			}
 		}

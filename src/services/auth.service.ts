@@ -5,7 +5,7 @@ import { RegisterDto } from "../dtos/register.dto";
 import { RedisService } from "../services/redis.service";
 import { PrismaService } from "./prisma.service";
 
-const prisma = PrismaService.getInstance().getPrisma()
+const prisma = PrismaService.getInstance().getPrisma();
 
 export class AuthService {
 	private redisService: RedisService;
@@ -15,15 +15,13 @@ export class AuthService {
 	}
 
 	public async register({ email, name, password }: RegisterDto) {
-		console.log("📥 Création de l'utilisateur...");
-
 		const existingUser = await prisma.user.findUnique({ where: { email } });
 		if (existingUser) {
-			throw new Error("Cet email est déjà utilisé !");
+			throw new Error("This email is already used !");
 		}
 
 		if (!email.includes("@")) {
-			throw new Error("Cet email n'est pas valide !");
+			throw new Error("This email is not valid !");
 		}
 
 		const hashedPassword = await bcrypt.hash(password, 10);
@@ -31,13 +29,11 @@ export class AuthService {
 			data: { email, name, password: hashedPassword, role: "user" },
 		});
 
-		console.log("🎉 Utilisateur créé :", user);
+		console.log("User created :", user);
 		return user;
 	}
 
 	public async login({ email, password }: LoginDto, app: FastifyInstance) {
-		console.group("login@service");
-
 		const user = await prisma.user.findUnique({ where: { email } });
 		if (!user) {
 			throw new Error("Invalid credentials");
@@ -61,32 +57,31 @@ export class AuthService {
 			{ expiresIn },
 		);
 
-		await this.redisService.storeUserToken(user.id, token); // ✅ Stockage en Redis
-		console.groupEnd();
+		await this.redisService.storeUserToken(user.id, token);
 		return { token, user };
 	}
 
 	public async logout(request: FastifyRequest): Promise<{ message: string }> {
 		const authHeader = request.headers.authorization;
 		if (!authHeader)
-			return { message: "Déconnexion réussie (aucun token fourni)" };
+			return { message: "Successfully logged out (no token provided)" };
 
 		const token = authHeader.split(" ")[1];
 		if (await this.redisService.isTokenBlacklisted(token)) {
-			return { message: "Déconnexion réussie (token déjà invalidé)" };
+			return { message: "Successfully logged out (token already invalidated)" };
 		}
 
 		const decoded = request.server.jwt.decode(token) as { exp?: number };
 		if (!decoded?.exp) {
-			return { message: "Impossible de récupérer l'expiration du token" };
+			return { message: "Unable to retrieve token expiration" };
 		}
 
 		const expirationTime = decoded.exp - Math.floor(Date.now() / 1000);
 		if (expirationTime > 0) {
-			await this.redisService.blacklistToken(token, expirationTime); // ✅ Ajout à la blacklist
+			await this.redisService.blacklistToken(token, expirationTime);
 		}
 
-		return { message: "Déconnexion réussie" };
+		return { message: "Successfully logged out" };
 	}
 
 	public async isTokenBlacklisted(token: string): Promise<boolean> {

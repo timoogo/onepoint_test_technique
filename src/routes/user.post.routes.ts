@@ -28,7 +28,7 @@ export async function userPostRoutes(fastify: FastifyInstance) {
                     data: newUser,
                 });
             } catch (error: any) {
-                console.error("🔴 Erreur capturée :", error);
+                console.error("Error captured :", error);
 
                 if (error instanceof PasswordValidationException) {
                     return reply.status(HttpStatus.BAD_REQUEST).send({

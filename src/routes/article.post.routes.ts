@@ -2,13 +2,12 @@ import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
 import { FastifyInstance } from "fastify";
 import { EnvironnementLevel } from "../config/environnement.config";
+import { HttpStatus } from "../config/http.config";
 import { CreateArticleDTO } from "../dtos/create-article.dto";
 import { isAdmin } from "../middlewares/is-admin.middleware";
 import { isAuthenticated } from "../middlewares/is-authenticated.middleware";
-import { ArticleService } from "../services/article.service";
-import { ResponseHandler } from "../utils/response.handler";
-import { HttpStatus } from "../config/http.config";
 import { ArticleSchemas } from "../schemas/article.schema";
+import { ArticleService } from "../services/article.service";
 const articleService = new ArticleService();
 
 /**
@@ -35,16 +34,15 @@ export async function articlePostRoutes(app: FastifyInstance) {
 						for (const error of errors) {
 							console.error(error);
 						}
-
-						ResponseHandler.error("Validation échouée", reply);
-            return reply.status(HttpStatus.BAD_REQUEST).send({
-              status: "error",
-              message: "Validation échouée",
-              errors: errors.map((error) => ({
-                property: error.property,
-                constraints: error.constraints,
-              })),
-            });
+						console.error("Validation failed", ...errors);
+						return reply.status(HttpStatus.BAD_REQUEST).send({
+							status: "error",
+							message: "Validation failed",
+							errors: errors.map((error) => ({
+								property: error.property,
+								constraints: error.constraints,
+							})),
+						});
 					}
 				}
 
@@ -60,38 +58,30 @@ export async function articlePostRoutes(app: FastifyInstance) {
 
 				// Vérification de la création
 				if (!article) {
-					ResponseHandler.error(
-						"Erreur lors de la création de l'article",
-						reply,
-					);
+					console.error("Error creating article", reply);
+					// TODO: Voir si on peut améliorer cette erreur
 				}
 
-				// Vérification de la longueur des champs
-				if (article.description.length) ResponseHandler.success("La description est assez longue", article);
-        if (article.content.length) ResponseHandler.success("Le contenu est assez long", article);
-
-        // Réponse
-        ResponseHandler.success("Article créé avec succès", article);
-		return reply.status(HttpStatus.CREATED).send({
-			status: "success",
-			message: {
-				state: "Ressource créée.",
-				details: "Article créé avec succès"
-			},
-			data: {
-				id: article.id,
-				title: article.title,
-				description: article.description,
-				content: article.content,
-				createdAt: article.createdAt,
-				updatedAt: article.updatedAt,
-				createdById: article.createdById,
-			}
-		});
-		
-
+				// Réponse
+				console.log("Successfully created article", article);
+				return reply.status(HttpStatus.CREATED).send({
+					status: "success",
+					message: {
+						state: "Resource created.",
+						details: "Successfully created article",
+					},
+					data: {
+						id: article.id,
+						title: article.title,
+						description: article.description,
+						content: article.content,
+						createdAt: article.createdAt,
+						updatedAt: article.updatedAt,
+						createdById: article.createdById,
+					},
+				});
 			} catch (error) {
-				ResponseHandler.error("Erreur lors de la création de l'article", error);
+				console.error("Error creating article", error);
 			}
 		},
 	);

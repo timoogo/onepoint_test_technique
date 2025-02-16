@@ -18,79 +18,71 @@ export class HookService {
         this.registerOnRequest(app);
         this.registerOnSend(app);
         this.registerOnClose(app);
-        console.log("✅ Tous les hooks Fastify ont été enregistrés !");
     }
 
     private registerOnRequest(app: FastifyInstance) {
         app.addHook("onRequest", async (request: FastifyRequest, reply: FastifyReply) => {
+
+            // Ignorer toutes les routes Swagger et statiques
+            if (request.url.startsWith("/docs")) return;
             const isPublicRoute = publicRoutes.some(
                 (route) =>
                     request.raw.url?.startsWith(route.url) &&
                     (!route.method || request.method.toUpperCase() === route.method.toUpperCase()),
             );
     
-            if (isPublicRoute) {
-                request.log.info(`🔓 Route publique : ${request.url}`);
-                return;
-            }
-    
+            if (isPublicRoute) return;
             if (!request.headers.authorization) {
-                request.log.warn(`🚨 Token manquant pour ${request.url}`);
+                request.log.warn(`Token missing for ${request.url}`);
                 return reply.status(HttpStatus.UNAUTHORIZED).send({
                     status: "error",
-                    message: "Token manquant",
+                    message: "Missing token",
                 });
             }
     
             try {
                 await request.jwtVerify();
-                request.log.info(`✅ Token valide pour ${request.url}`);
+                request.log.info(`Token validated for ${request.url}`);
             } catch (error) {
-                request.log.error(`🚨 Token invalide pour ${request.raw.url}`, error);
+                request.log.error(`Invalid token for ${request.raw.url}`, error);
                 return reply.status(HttpStatus.UNAUTHORIZED).send({
                     status: "error",
-                    message: "Token invalide ou expiré.",
+                    message: "Invalid token or expired.",
                 });
             }
         });
     
-        console.log("🛡️ Hook `onRequest` enregistré");
     }
     
 
     private registerOnSend(app: FastifyInstance) {
         app.addHook("onSend", async (request: FastifyRequest, reply: FastifyReply, payload) => {
             try {
-                if (typeof payload === "string") {
-                    return payload; // ✅ Si c'est déjà une chaîne, on retourne tel quel
+                if (typeof payload === "string") return payload;
+    
+                if (typeof payload === "object" && reply.getHeader("content-type")?.toString().includes("application/json")) {
+                    return JSON.stringify(payload);
                 }
     
-                if (typeof payload === "object") {
-                    return JSON.stringify(payload); // ✅ Transformer l'objet en JSON string
-                }
-    
-                return payload; // ✅ Autres types inchangés
+                return payload;
             } catch (error) {
-                request.log.error("⚠️ Erreur dans le hook onSend :", error);
+                request.log.error("Error in onSend hook:", error);
                 return payload;
             }
         });
     
-        console.log("📦 Hook `onSend` enregistré");
     }
     
 
     private registerOnClose(app: FastifyInstance) {
         app.addHook("onClose", async () => {
             try {
-                app.log.info("🔌 Fermeture de la connexion à la base de données...");
-                // Ici tu peux ajouter la déconnexion de tes services si nécessaire
-                app.log.info("✅ Connexions fermées avec succès.");
+                app.log.info("Closing database connection...");
+                app.log.info("✅ Database connections closed successfully.");
+                process.exit(0);
             } catch (error) {
-                app.log.error("❌ Erreur lors de la fermeture des connexions :", error);
+                app.log.error("Error closing database connections:", error);
             }
         });
-
-        console.log("🔚 Hook `onClose` enregistré");
     }
 }

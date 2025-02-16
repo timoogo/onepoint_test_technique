@@ -35,7 +35,7 @@ export class AuthController {
 	): Promise<FastifyReply> {
 		try {
 			ResponseHandler.info(
-				"🔹 Requête reçue pour login",
+				"Login request received",
 				{ email: request.body.email },
 				request,
 			);
@@ -49,8 +49,8 @@ export class AuthController {
 				request.server,
 			);
 
-			ResponseHandler.success("✅ Connexion réussie", user, request);
-			request.log.info("🔑 Token envoyé au client (@controller)");
+			ResponseHandler.success("Successfully logged in", user, request);
+			request.log.info("Token sent to client (@controller)");
 
 			return reply.status(HttpStatus.OK).send({
 				status: "success",
@@ -59,7 +59,7 @@ export class AuthController {
 			});
 		} catch (error: any) {
 			if (error instanceof BaseException) {
-				ResponseHandler.error("❌ Erreur de connexion", error.message, request);
+				ResponseHandler.error("Login error", error.message, request);
 				return reply.status(error.statusCode).send({
 					status: "error",
 					errorCode: error.statusCode,
@@ -67,7 +67,7 @@ export class AuthController {
 				});
 			}
 
-			ResponseHandler.error("❌ Erreur inconnue", error.message, request);
+			ResponseHandler.error("Unknown error", error.message, request);
 			return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
 				status: "error",
 				errorCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -88,7 +88,7 @@ export class AuthController {
 		reply: FastifyReply,
 	): Promise<FastifyReply> {
 		try {
-			request.log.info("📥 Requête reçue pour inscription", {
+			request.log.info("Registration request received", {
 				body: request.body,
 				requestId: request.id,
 			});
@@ -107,9 +107,9 @@ export class AuthController {
 			}
 
 			// Enregistrement de l'utilisateur
-			request.log.info("✅ Validation OK, enregistrement en cours...");
+			request.log.info("Validation OK, registration in progress...");
 			const user = await this.authService.register(registerDto);
-			request.log.info("✔️ Inscription réussie", { email: user.email });
+			request.log.info("Successfully registered", { email: user.email });
 
 			return reply.status(HttpStatus.CREATED).send({
 				status: "success",
@@ -117,7 +117,7 @@ export class AuthController {
 				user,
 			});
 		} catch (error: any) {
-			request.log.error("❌ Erreur lors de l'inscription", error);
+			request.log.error("Registration error", error);
 			return reply.status(HttpStatus.BAD_REQUEST).send({
 				status: "error",
 				errorCode: HttpStatus.BAD_REQUEST,
@@ -138,10 +138,10 @@ export class AuthController {
 		reply: FastifyReply,
 	): Promise<FastifyReply> {
 		try {
-			request.log.info("🔓 Tentative de déconnexion");
+			request.log.info("Logout attempt");
 
 			const response = await this.authService.logout(request);
-			request.log.info("✔️ Déconnexion réussie");
+			request.log.info("Successfully logged out");
 
 			return reply.status(HttpStatus.OK).send({
 				status: "success",
@@ -149,7 +149,7 @@ export class AuthController {
 				data: response,
 			});
 		} catch (error: any) {
-			request.log.error("❌ Erreur lors de la déconnexion", error);
+			request.log.error("Logout error", error);
 			return reply.status(HttpStatus.BAD_REQUEST).send({
 				status: "error",
 				errorCode: HttpStatus.BAD_REQUEST,
