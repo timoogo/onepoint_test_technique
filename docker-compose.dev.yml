@@ -1,0 +1,52 @@
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+  db:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: onepoint_test_technique
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: always
+    env_file:
+      - .env.dev
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      - ./tests:/app/tests
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    entrypoint: ["sh", "./entrypoint.dev.sh"]
+    command: ["npm", "run", "dev:test"]
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

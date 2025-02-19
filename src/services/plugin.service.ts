@@ -35,7 +35,7 @@ export class PluginService {
 		app.register(swagger, {
 			openapi: {
 				info: {
-					title: "API de gestion des articles",
+					title: `API de gestion des articles | Mode: ${process.env.NODE_ENV}`,
 					description: "Documentation de l'API",
 					version: "1.0.0",
 					contact: {

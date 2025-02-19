@@ -5,6 +5,8 @@ import { PrismaClient } from "@prisma/client";
  * @description Service Singleton permettant de gérer une unique instance de PrismaClient,
  * même avec Nodemon (via globalThis).
  */
+
+export type ModelKeys = Exclude<keyof PrismaClient, `$${string}`>; // Exclut les méthodes système
 export class PrismaService {
 	private static instance: PrismaService;
 	private prisma: PrismaClient;
@@ -39,6 +41,11 @@ export class PrismaService {
 	public getPrisma(): PrismaClient {
 		return this.prisma;
 	}
+
+	public static getModelKeys(): ModelKeys[] {
+		return Object.keys(PrismaService.getInstance().getPrisma()) as ModelKeys[];
+	}
+
 
 	/**
 	 * @method disconnect

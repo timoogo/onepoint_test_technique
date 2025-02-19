@@ -1,0 +1,27 @@
+# Dockerfile.dev
+FROM node:19-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+COPY tsconfig.json ./
+
+RUN npm install
+
+COPY entrypoint.dev.sh  ./
+
+RUN chmod +x ./entrypoint.dev.sh
+
+COPY ./src ./src
+
+COPY ./prisma ./prisma
+
+COPY ./prisma/seed.ts ./prisma/seed.ts
+
+# Copy /tests folder
+COPY ./tests ./tests
+
+COPY ./.env.dev ./.env
+
+ENTRYPOINT ["./entrypoint.dev.sh"]
