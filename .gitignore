@@ -31,7 +31,6 @@ settings.json
 
 # Prisma
 prisma/dev.db
-prisma/migrations/
 prisma/.env
 
 

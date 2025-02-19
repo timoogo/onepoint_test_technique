@@ -17,14 +17,17 @@ const redisService = new RedisService();
 export { redisService };
 
 async function startServer() {
+    console.log("Starting server...");
     try {
+        console.log("Registering plugins...");
         const pluginService = PluginService.getInstance();
         await pluginService.registerAll(app); 
 		
-
+        console.log("Registering hooks...");    
         const hookService = HookService.getInstance();
         hookService.registerAll(app);
 
+        console.log("Registering routes...");
         for (const route of [AuthRoutes, UserRoutes, ArticleRoutes]) {
             app.register(route);
         }
