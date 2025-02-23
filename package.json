@@ -11,10 +11,6 @@
 		"format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
 		"dev": "npx ts-node-dev --transpile-only --exit-child src/index.ts",
 		"dev:respawn": "npx ts-node-dev --transpile-only --respawn src/index.ts",
-		"dev:test": "npm run dev:respawn && npm run test:watch",
-		"test:coverage": "jest --coverage",
-		"test": "jest",
-		"test:watch": "jest --watchAll",
 		"start:prod": "node dist/index.js",
 		"docker:up:dev": "docker-compose -f docker-compose.dev.yml down -v && docker-compose -f docker-compose.dev.yml up --build",
 		"docker:up:prod": "docker-compose -f docker-compose.prod.yml down -v && docker-compose -f docker-compose.prod.yml up --build",
@@ -44,7 +40,6 @@
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.2",
-		"@types/jest": "^29.5.14",
 		"@types/supertest": "^6.0.2",
 		"supertest": "^6.0.1",
 		"cross-env": "^7.0.3",
@@ -52,9 +47,7 @@
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-import": "^2.31.0",
 		"eslint-plugin-prettier": "^5.2.3",
-		"jest": "^29.7.0",
 		"prettier": "^3.4.2",
-		"ts-jest": "^29.2.5",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.7.3"
 	}
