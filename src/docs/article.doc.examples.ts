@@ -1,22 +1,5 @@
 import { ExampleGenerator } from "../utils/example.generator.utils";
 
-//  export const ArticleDocExamples = {
-//  	Article: [
-//  		ExampleGenerator.generateArticleExample(),
-//  		ExampleGenerator.generateArticleExample(),
-//  	],
-//     GetAllArticles: [
-//         ExampleGenerator.generateMultipleArticleExamples(3),
-//     ],
-//  	Reassign: [
-//  		{ oldUserId: 12, newUserId: 34 },
-//  		{ oldUserId: null, newUserId: 56 },
-//  	],
-//     Delete: [
-//         { id: 12 },
-//     ]
-
-//  };
 
 export const ArticleDocRequestExamples = {
     GetAllArticles: [
@@ -30,27 +13,28 @@ export const ArticleDocRequestExamples = {
         {
             summary: "Requête invalide",
             value: {
-                page: "première", // ❌ Mauvais type (string au lieu d'un nombre)
-                limit: -5, // ❌ Valeur négative invalide
+                page: "première", 
+                limit: -5, 
             },
         },
     ],
     CreateArticle: [
         {
-            summary: "Requête valide",
-            value: {
-                title: "Titre de l'article",
-				description: "Description de l'article",
-				content: "Contenu de l'article",
-            },
+            title: "Titre de l'article qui respecte les contraintes de longueur",
+            description: "Description de l'article qui respecte les contraintes de longueur",
+            content: "Contenu de l'article qui respecte les contraintes de longueur",
         },
         {
-            summary: "Requête invalide",
-            value: {
-                title: "Titre de l'article",
-            },
+            title: "Invalid",
+			description: "Invalid",
+			content: "Invalid",
         },
     ],
+	DeleteArticle: [
+		{
+			id: 1,
+		},
+	],
 
 };
 
@@ -74,7 +58,50 @@ export const ArticleDocResponseExamples = {
 			message:
 				"Paramètres invalides : page doit être un entier positif, limit doit être un nombre supérieur à 0.",
 		},
+		{
+			status: "error",
+			message: "Internal server error",
+		},
 	],
+
+	GetArticleById: [
+		{
+			status: "success",
+			message: "Article récupéré avec succès.",
+			data: [
+				{
+					"title": "Titre de l'article 649",
+					"description": "Description de l'article 649",
+					"content": "Contenu de l'article 649",
+					"createdAt": "2025-02-23T11:17:42.859Z",
+					"updatedAt": "2025-02-23T11:17:42.859Z"
+				  },
+				  {
+					"title": "Titre de l'article 849",
+					"description": "Description de l'article 849",
+					"content": "Contenu de l'article 849",
+					"createdAt": "2025-02-23T11:17:42.859Z",
+					"updatedAt": "2025-02-23T11:17:42.859Z"
+				  },
+			]
+		},
+		{
+			status: "error",
+			message: "Article non trouvé.",
+		},
+		{
+			status: "error",
+			message: "Internal server error",
+		},
+	],
+	DeleteArticle: [
+		{
+			status: "success",
+			message: "Article supprimé avec succès.",
+		},
+		
+	],
+
 	CreateArticle_Success: [
 		{
 			status: "success",

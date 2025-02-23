@@ -27,7 +27,7 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 	}>(
 		"/:id",
 		{
-			preHandler: [isAuthenticated, isAdmin], // ✅ Vérifie l'authentification AVANT l'admin
+			preHandler: [isAuthenticated, isAdmin],
 			schema: ArticleSchemas.UpdateArticle,
 		},
 		async (request, reply) => {
@@ -66,7 +66,6 @@ export async function articlePutRoutes(fastify: FastifyInstance) {
 			const foundArticle = await articleService.getArticleById(id);
 
 			if (!foundArticle) {
-		
 				return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
 					status: "error",
 					message: "Article not found after update.",

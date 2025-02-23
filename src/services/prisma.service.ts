@@ -42,10 +42,13 @@ export class PrismaService {
 		return this.prisma;
 	}
 
-	public static getModelKeys(): ModelKeys[] {
-		return Object.keys(PrismaService.getInstance().getPrisma()) as ModelKeys[];
-	}
 
+	public static getModelKeys(): ModelKeys[] {
+		const prismaClient = PrismaService.getInstance().getPrisma();
+		
+		return Object.keys(prismaClient)
+			.filter((key) => typeof (prismaClient as any)[key]?.create === "function") as ModelKeys[];
+	}
 
 	/**
 	 * @method disconnect
@@ -56,7 +59,19 @@ export class PrismaService {
 	}
 }
 
+
+export async function countResource(resource: ModelKeys) {
+    const prismaClient = prismaService.getPrisma();
+	const delegate = prismaClient[resource] as unknown as {
+        count: (args?: any) => Promise<number>;
+    };
+    return await delegate.count();
+}
+
+
+
 /**
+ * 
  * Utilise `globalThis` pour éviter les multiples instances
  * en mode développement (utile avec `nodemon`).
  */

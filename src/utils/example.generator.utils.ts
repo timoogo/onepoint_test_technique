@@ -71,7 +71,8 @@ const majuscules = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         
 
         if (!article || users.length < 2) {
-            throw new Error("❌ Impossible de générer l'exemple de réattribution : pas assez de données.");
+         //   throw new Error("❌ Impossible de générer l'exemple de réattribution : pas assez de données.");
+            return {}
         }
 
         return {

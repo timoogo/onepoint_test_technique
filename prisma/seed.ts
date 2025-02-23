@@ -1,47 +1,50 @@
-import { ModelKeys, PrismaService } from "../src/services/prisma.service";
+import { PrismaClient } from "@prisma/client";
+import { prismaService } from "../src/services/prisma.service";
 import { articles, users } from "./resources.data";
 
-const prisma = PrismaService.getInstance().getPrisma();
+const prisma = prismaService.getPrisma();
+const modelKeys = ["User", "Article"]; // Respecte la casse de PostgreSQL
 
-type Resource = {
-	name: ModelKeys;
-	data: any[];
-	skipDuplicates?: boolean;
-};
-
-const modelKeys = PrismaService.getModelKeys();
-
-async function createResource(
-	resource: Resource,
-	skipDuplicates: boolean = true,
-) {
-	if (!modelKeys.includes(resource.name)) {
-		throw new Error(`Modèle invalide : ${String(resource.name)}`);
-	}
-
-	await (prisma[resource.name] as any).createMany({
-		data: resource.data,
-		skipDuplicates,
-	});
-}
+console.log("🧐 Model Keys:", modelKeys);
 
 async function main() {
-	await createResource({
-		name: "user",
-		data: users,
-	});
+	try {
+		console.log("🚀 Début du seed...");
+		console.log("🧐 Model Keys:", modelKeys);
 
-	await createResource({
-		name: "article",
-		data: articles,
-	});
+		// 🔄 Supprimer les données avec TRUNCATE CASCADE
+		for (const resource of modelKeys) {
+			console.log(`🔄 Nettoyage de la table ${resource}...`);
+			await prisma.$executeRawUnsafe(`TRUNCATE TABLE "${resource}" RESTART IDENTITY CASCADE`);
+			console.log(`✨ Table ${resource} vidée avec succès`);
+		}
+
+
+		console.log("🧐 Users à insérer:", users.length);
+		// 📝 Réinsertion des utilisateurs et articles
+		await prisma.user.createMany({
+			data: users,
+			skipDuplicates: true,
+		});
+		const usersAfter = await prisma.user.findMany();
+
+		console.log("🧐 Articles à insérer:", articles.length);
+		await prisma.article.createMany({
+			data: articles,
+			skipDuplicates: true,
+		});
+		const articlesAfter = await prisma.article.findMany();
+		console.log("📊 Résultats du seed :");
+		console.table(usersAfter);
+		console.table(articlesAfter);
+
+		console.log("🎉 Seed terminé avec succès !");
+	} catch (error) {
+		console.error("❌ Erreur lors du seed :", error);
+	} finally {
+		await prismaService.disconnect();
+		console.log("🛑 Prisma déconnecté proprement.");
+	}
 }
 
-main()
-	.catch((error) => {
-		console.error(error);
-		process.exit(1);
-	})
-	.finally(async () => {
-		await prisma.$disconnect();
-	});
+main();

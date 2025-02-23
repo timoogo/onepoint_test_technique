@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { UserWithPassword as SafeUser } from "../types/user.type";
 import { PrismaService } from "./prisma.service";
 

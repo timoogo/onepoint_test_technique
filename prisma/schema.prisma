@@ -11,11 +11,11 @@ model Article {
   id          Int      @id @default(autoincrement())
   title       String
   description String
-  content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   createdById Int?
-  createdBy   User?    @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  content     String
+  createdBy   User?    @relation(fields: [createdById], references: [id])
 }
 
 model User {

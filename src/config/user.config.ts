@@ -69,13 +69,13 @@ export class UserConfig extends ConfigBase {
 	  };
 }
 
-export const UserMessages = {
-	GET_ALL: "Récupérer tous les utilisateurs",
-	REGISTER: `${DocConfig.generateWarningMessage([
-		`Cette route permet à un nouvel utilisateur de s'*inscrire*.`,
-		`Une fois inscrit, il pourra se *connecter* et accéder aux fonctionnalités protégées. _(uniquement pour les rôles *ADMIN*)_`,
-		"Le rôle par défaut est 'USER'.",
-		`Voir **exemple 2** pour un utilisateur _ADMIN_`,
-	], `[${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)}](${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)})`)
-	}`,
-};
+// export const UserMessages = {
+// 	GET_ALL: "Récupérer tous les utilisateurs",
+// 	REGISTER: `${DocConfig.generateWarningMessage([
+// 		`Cette route permet à un nouvel utilisateur de s'*inscrire*.`,
+// 		`Une fois inscrit, il pourra se *connecter* et accéder aux fonctionnalités protégées. _(uniquement pour les rôles *ADMIN*)_`,
+// 		"Le rôle par défaut est 'USER'.",
+// 		`Voir **exemple 2** pour un utilisateur _ADMIN_`,
+// 	], `[${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)}](${AppConfig.getReadMeUrl(UserConfig.DocAnchors.register)})`)
+// 	}`,
+// };

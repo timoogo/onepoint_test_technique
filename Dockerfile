@@ -13,7 +13,6 @@ COPY tsconfig.json ./
 
 # Étape 5 : Installer les dépendances en mode production
 RUN npm install --only=production
-RUN npm install @types/bcrypt
 
 # Étape 6 : Copier le code source
 COPY ./src ./src

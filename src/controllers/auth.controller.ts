@@ -4,11 +4,10 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { HttpMessages, HttpStatus } from "../config/http.config";
 import { LoginDto } from "../dtos/login.dto";
 import { RegisterDto } from "../dtos/register.dto";
-import { BaseException } from "../exeptions/base.exception";
 import { validateDto } from "../middlewares/validate-dto.middleware";
 import { AuthService } from "../services/auth.service";
 import { ResponseHandler } from "../utils/response.handler";
-
+import { BaseException } from "../exceptions/base.exception";
 /**
  * Contrôleur pour l'authentification.
  */

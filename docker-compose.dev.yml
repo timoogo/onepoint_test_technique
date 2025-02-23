@@ -25,6 +25,13 @@ services:
       - app_network
 
   app:
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=4096
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4096M
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -42,8 +49,9 @@ services:
     ports:
       - "3000:3000"
       - "9229:9229"
+      - "5555:5555"
     entrypoint: ["sh", "./entrypoint.dev.sh"]
-    command: ["npm", "run", "dev:test"]
+    command: ["sh", "-c", "npm run dev:respawn & npx prisma studio"]
     networks:
       - app_network
 

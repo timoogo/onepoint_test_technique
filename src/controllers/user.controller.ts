@@ -40,13 +40,10 @@ export class UserController {
 	 * @param id - ID de l'utilisateur à récupérer
 	 * @returns Promise<Omit<User, 'password'>> Utilisateur récupéré
 	 */
-  async getUserById(id: number): Promise<Omit<User, 'password'>> {
+  async getUserById(id: number): Promise<Omit<User, 'password'> | null> {
     const user = await this.userService.getUserById(id);
-    if (!user) {
-      throw new Error('User not found');
-    }
-    return user;
-}
+    return user || null;
+  }
 	/**
 	 * Supprimer un utilisateur par son ID
 	 * @param id - ID de l'utilisateur à supprimer

@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"types": ["node"],
+		"types": ["node", "jest", "supertest"],
 		"target": "ES6",
 		"module": "NodeNext",
 		"outDir": "./dist",

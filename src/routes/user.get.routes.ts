@@ -75,40 +75,68 @@ export async function userGetRoutes(fastify: FastifyInstance) {
 		async (request, reply) => {
 			try {
 				const id = Number(request.params.id);
-				if (isNaN(id)) {
-					console.warn("Invalid ID received :", request.params.id);
+	
+				// Vérifier si l'ID est un nombre valide et positif
+				if (isNaN(id) || id <= 0 || !Number.isInteger(id)) {
+					console.warn("Invalid ID received:", request.params.id);
 					return reply.status(HttpStatus.BAD_REQUEST).send({
 						status: "error",
-						message: "Invalid ID",
+						message: {
+							state: "Invalid request",
+							details: `ID '${request.params.id}' is not a valid positive integer.`,
+						},
 					});
 				}
-				const user = await userController.getUserById(id);
-
+	
+				// Sécuriser l'appel pour éviter une erreur fatale
+				let user;
+				try {
+					user = await userController.getUserById(id);
+				} catch (error) {
+					console.error(`Database error while fetching user with ID ${id}:`, error);
+					return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+						status: "error",
+						message: {
+							state: "Database error",
+							details: "An error occurred while querying the database.",
+						},
+					});
+				}
+	
+				// Vérifier si l'utilisateur existe
 				if (!user) {
 					console.warn(`User with ID ${id} not found.`);
 					return reply.status(HttpStatus.NOT_FOUND).send({
 						status: "error",
-						message: `User with ID ${id} not found.`,
+						message: {
+							state: "User not found",
+							details: `No user found with ID ${id}.`,
+						},
 					});
 				}
-
-
-				const response = {
+	
+				// Réponse en cas de succès
+				return reply.status(HttpStatus.OK).send({
 					status: "success",
-					message: `User with ID ${id} fetched successfully.`,
+					message: {
+						state: "User retrieved",
+						details: `User with ID ${id} fetched successfully.`,
+					},
 					data: user,
-				};
-				return reply.status(HttpStatus.OK).send(response);
+				});
+				
 			} catch (error) {
-				console.error(
-					"Error fetching user :",
-					error,
-				);
+				console.error("Unexpected error fetching user:", error);
 				return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
 					status: "error",
-					message: "Internal server error",
+					message: {
+						state: "Internal server error",
+						details: "An unexpected error occurred while retrieving the user.",
+					},
 				});
 			}
 		},
 	);
+	
+	
 }

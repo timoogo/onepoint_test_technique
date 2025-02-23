@@ -50,18 +50,15 @@ export class DocConfig extends ConfigBase {
  */
     static generateWarningMessage(messages: string | string[], doc?: string): string {
       const formattedMessage = Array.isArray(messages) 
-            ? DocConfig.addBrTags(messages.join("\n"))
-            : messages;
-        
-        return `${DocConfig.addTitleLevel(
-            `${DocConfig.centerText(DocConfig.addBrTags("⚠️ Attention ⚠️"))}
-            ${DocConfig.centerText(DocConfig.addBrTags("--------------------------------"))}
-            ${doc ? DocConfig.centerText(doc) : ""}
-            `,
-            2
-        )}
-        ${DocConfig.centerText(formattedMessage)}`;
+        ? messages.join("\n\n")  // Double saut de ligne pour simuler des <br>
+        : messages;
+    
+      return `## ⚠️ Attention ⚠️  
+    ${doc ? `**${doc}**` : ""}  
+    
+    ${formattedMessage}`;
     }
+    
 
  }
  

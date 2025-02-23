@@ -77,38 +77,43 @@ export async function articleGetRoutes(fastify: FastifyInstance) {
 			schema: ArticleSchemas.GetArticleById,
 		},
 		async (request, reply) => {
-			const { id } = request.params; // ✅ Correction : Type `id` bien défini
-
+			const { id } = request.params; 
+	
 			try {
 				const article = await articleController.getArticleById(id);
-
+	
 				if (!article) {
-					console.error("Article not found");
+					console.warn(`Article with ID ${id} not found.`);
 					return reply.status(HttpStatus.NOT_FOUND).send({
 						status: "error",
 						message: {
-							state: HttpMessages.NO_RESOURCES_FOUND, // ✅ Correction ici
-							details: `No article found with ID ${id}`,
+							state: "Article not found",
+							details: `No article found with ID ${id}.`,
 						},
 					});
 				}
-
+				
+	
 				return reply.status(HttpStatus.OK).send({
 					status: "success",
 					message: {
-						state: HttpMessages.RESOURCES_FOUND, // ✅ Correction ici
+						state: HttpMessages.RESOURCES_FOUND, 
 						details: `Article with ID ${id} fetched successfully`,
 					},
 					data: article,
 				});
 			} catch (error) {
 				console.error("Error fetching article", error);
-
+	
 				return reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
 					status: "error",
-					message: HttpMessages.INTERNAL_SERVER_ERROR,
+					error: {
+						state: HttpMessages.INTERNAL_SERVER_ERROR, 
+						details: "An unexpected error occurred while retrieving the article.",
+					},
 				});
 			}
 		},
 	);
+	
 }

@@ -5,6 +5,7 @@ export class RedisService {
 	protected BLACKLIST_PREFIX = "jwt-blacklist:";
 	protected TOKEN_PREFIX = "user:";
 	protected isDebugMode: boolean;
+	private static instance: RedisService;
 
 	constructor() {
 		this.isDebugMode = process.env.NODE_ENV === "development";
@@ -140,5 +141,30 @@ export class RedisService {
 		);
 		console.log(`List of blacklisted tokens:`, blacklistedTokens);
 		return blacklistedTokens;
+	}
+
+
+	public static getInstance(): RedisService {
+		if (!RedisService.instance) {
+			RedisService.instance = new RedisService();
+		}
+		return RedisService.instance;
+	}
+
+	public async isConnected(): Promise<boolean> {
+		try {
+			const status = this.client.status;
+			if (status === "connecting") {
+				await new Promise((resolve) => setTimeout(resolve, 500));
+			}
+			const isReady = this.client.status === "ready";
+			if (!isReady) {
+				console.warn(`Redis client status: ${status}`);
+			}
+			return isReady;
+		} catch (error) {
+			console.error("Error when checking Redis connection:", error);
+			return false;
+		}
 	}
 }

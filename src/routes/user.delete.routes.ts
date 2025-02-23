@@ -12,7 +12,7 @@ export async function userDeleteRoutes(fastify: FastifyInstance) {
 		"/:id",
 		{
 			preHandler: [isAuthenticated, isAdmin],
-			schema: UserSchemas.DeleteUser,
+			schema: UserSchemas.DeleteUserById,
 		},
 		async (request, reply) => {
 			try {

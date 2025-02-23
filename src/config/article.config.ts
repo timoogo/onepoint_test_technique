@@ -1,6 +1,8 @@
 import { AppConfig, ReadmeAnchor } from "./app.config";
 import { ConfigBase } from "./config.base";
 import { DocConfig } from "./doc.config";
+import fs from "fs";
+import path from "path";
 
 // Enum de base pour les verbes HTTP standards
 export enum HttpVerb {
@@ -51,28 +53,47 @@ export const ArticleMessages = {
 	CONTENT_REQUIRED: "Le contenu est obligatoire",
 	CONTENT_LENGTH: `Le contenu doit contenir entre ${ArticleConfig.CONTENT_LENGTH.MIN} et ${ArticleConfig.CONTENT_LENGTH.MAX} caractères`,
 
-	/**
-	 * Message d'avertissement pour la réattribution d'un article.
-	 * Il rappelle à l'utilisateur de bien vérifier l'ID du nouvel utilisateur.
-	 */
-	REASSIGN: DocConfig.generateWarningMessage(
-		"Assurez-vous que l'ID du nouvel utilisateur est correct.",
+	GET_ALL_SUMMARY: "Récupérer tous les articles",
+	GET_ALL_DESCRIPTION: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/get-all-articles.md"),
+		"utf8",
+	),
+
+	GET_BY_ID_SUMMARY: "Récupérer un article par son ID",
+	GET_BY_ID_DESCRIPTION: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/get-article-by-id.md"),
+		"utf8",
+	),
+
+	CREATE_SUMMARY: "Créer un article",
+	CREATE_DESCRIPTION: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/create-article.md"),
+		"utf8",
+	),
+
+	REASSIGN_SUMMARY: "Réassigner un article à un autre utilisateur",
+	REASSIGN: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/reassign-article.md"),
+		"utf8",
 	),
 
 	/**
 	 * Message d'avertissement avant la suppression d'un article.
 	 * Il indique à l'utilisateur de bien vérifier l'ID avant de supprimer.
 	 */
-	DELETE: DocConfig.generateWarningMessage(
-		"Assurez-vous que l'ID de l'utilisateur est correct avant de supprimer.",
+	DELETE_SUMMARY: "Supprimer un article",
+	DELETE_DESCRIPTION: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/delete-article-by-id.md"),
+		"utf8",
 	),
 
 	/**
 	 * Message d'avertissement avant la création d'un article.
 	 * Il rappelle à l'utilisateur de bien vérifier les informations saisies.
 	 */
-	CREATE: DocConfig.generateWarningMessage(
-		"Vérifiez bien les informations avant de créer l'article.",
+	CREATE: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/create-article.md"),
+		"utf8",
 	),
 
 	/**
@@ -87,17 +108,18 @@ export const ArticleMessages = {
 	 * Message d'avertissement pour la récupération de tous les articles.
 	 * Il rappelle à l'utilisateur de bien vérifier les paramètres de requête si applicable.
 	 */
-	GET_ALL: DocConfig.generateWarningMessage([
-		"Vérifiez les paramètres de requête avant de récupérer tous les articles.",
-		"Vu que plusieurs articles peuvent être récupérés, il est possible d'ajouter des paramètres de pagination pour limiter le nombre de résultats.",
-		"**Recommandation** : il est possible de configurer les paramètres de pagination.",
-	],`Voir le [README](${AppConfig.getReadMeUrl(ReadmeAnchor.PAGINATION_CONFIG)}) pour plus d'informations.`),
+	GET_ALL: DocConfig.generateWarningMessage(
+		[
+			"Vérifiez les paramètres de requête avant de récupérer tous les articles.",
+			"Vu que plusieurs articles peuvent être récupérés, il est possible d'ajouter des paramètres de pagination pour limiter le nombre de résultats.",
+			"**Recommandation** : il est possible de configurer les paramètres de pagination.",
+		],
+		`Voir le [README](${AppConfig.getReadMeUrl(ReadmeAnchor.PAGINATION_CONFIG)}) pour plus d'informations.`,
+	),
 
-	/**
-	 * Message d'avertissement pour la mise à jour d'un article.
-	 * Il rappelle à l'utilisateur de bien vérifier l'ID avant de faire la requête.
-	 */
-	UPDATE: DocConfig.generateWarningMessage(
-		"Assurez-vous que l'ID de l'article est correct avant de le mettre à jour.",
+	UPDATE_SUMMARY: "Modifier un article",
+	UPDATE_DESCRIPTION: fs.readFileSync(
+		path.join(__dirname, "../messages/swagger/put-article-by-id.md"),
+		"utf8",
 	),
 };
